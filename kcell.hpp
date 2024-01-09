@@ -51,6 +51,11 @@ struct KCell
     /// Dimension of the cell
     static constexpr dimension_type dimension() noexcept { return static_cast<dimension_type>(Open); }
 
+    // Convenient template parameter access
+    static constexpr bool isOpen() noexcept { return Open; }
+    static constexpr std::ptrdiff_t indexShift() noexcept { return IndexShift; }
+    static constexpr std::ptrdiff_t levelShift() noexcept { return LevelShift; }
+
     /// Khalimsky coordinate of the cell
     static constexpr std::ptrdiff_t khalimsky() noexcept { return 2 * IndexShift + Open; }
 

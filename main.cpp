@@ -70,6 +70,10 @@ int main()
 
     We can write:
 
+    auto kcells = KCell{}.up();
+    u(level, i, j) = (1. / kcells.size()) * kcells.apply(
+        [] (auto... cell) { return (cell.shift(u, level, i, j) + ...); }
+    );
     */
 
 
@@ -106,6 +110,8 @@ int main()
 
     std::cout << std::endl;
     std::cout << (cn.next() + cn).next() << std::endl;
+
+    std::cout << std::endl;
 
     return 0;
 }
