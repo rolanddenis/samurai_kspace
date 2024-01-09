@@ -10,7 +10,7 @@ struct Interval
     Interval& operator<<= (std::size_t s) noexcept
     {
         a <<= s;
-        b <<= s;
+        b = ((b - 1) << s) + 1;
         step <<= s;
         return *this;
     }
@@ -18,7 +18,7 @@ struct Interval
     Interval& operator>>= (std::size_t s) noexcept
     {
         a >>= s;
-        b >>= s;
+        b = ((b - 1) >> s) + 1;
         step >>= s;
         if (step == 0) step = 1;
         return *this;
@@ -47,6 +47,6 @@ inline Interval operator+ (Interval i, std::ptrdiff_t v) noexcept
 
 std::ostream & operator<< (std::ostream & out, Interval const& i)
 {
-    out << "[" << i.a << "," << i.b << "]:" << i.step;
+    out << "[" << i.a << "," << i.b << "[:" << i.step;
     return out;
 }
