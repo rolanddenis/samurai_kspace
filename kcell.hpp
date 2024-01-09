@@ -4,6 +4,8 @@
 #include <ostream>
 #include <type_traits>
 
+#include "kcells.hpp"
+
 namespace details
 {
     /// Bitwise shift with signed shift (<< for positive shift, >> for negative shift)
@@ -16,9 +18,9 @@ namespace details
             return std::forward<T>(i) >> -shift;     
     }
 
-    /// Shift level and position of one index
+    /// Shift level and position of one index or interval
     template <typename T>
-    constexpr auto apply(T && i, std::ptrdiff_t index_shift, std::ptrdiff_t level_shift) noexcept
+    constexpr auto shift(T && i, std::ptrdiff_t index_shift, std::ptrdiff_t level_shift) noexcept
     {
         return bitwise_shift(std::forward<T>(i), level_shift) + index_shift;
     }
@@ -33,9 +35,9 @@ namespace details
  * @tparam LevelShift   Level shift relatively to the original cell
 */
 template <
-    bool Open,
-    std::ptrdiff_t IndexShift,
-    std::ptrdiff_t LevelShift
+    bool Open = true,
+    std::ptrdiff_t IndexShift = 0,
+    std::ptrdiff_t LevelShift = 0
 >
 struct KCell
 {
@@ -54,36 +56,42 @@ struct KCell
 
     /// Forward move while keeping the same topology
     template <std::ptrdiff_t Steps = 1>
-    static constexpr KCell<Open, IndexShift + Steps, LevelShift> next() noexcept { return {}; }
+    static constexpr KCells<KCell<Open, IndexShift + Steps, LevelShift>> next() noexcept { return {}; }
 
     /// Backward move while keeping the same topology
     template <std::ptrdiff_t Steps = 1>
-    static constexpr KCell<Open, IndexShift - Steps, LevelShift> prev() noexcept { return {}; }
+    static constexpr KCells<KCell<Open, IndexShift - Steps, LevelShift>> prev() noexcept { return {}; }
 
     /// Forward move including adjacent cells (change topology for odd steps)
     template <std::ptrdiff_t Steps = 1>
-    static constexpr KCell<(khalimsky() + Steps) % 2, (khalimsky() + Steps)  / 2, LevelShift> nextIncident() noexcept { return {}; }
+    static constexpr KCells<KCell<(khalimsky() + Steps) % 2, (khalimsky() + Steps)  / 2, LevelShift>> nextIncident() noexcept { return {}; }
 
 
     /// Changing level while keeping the same topology
     // FIXME: should returns 2 cells
     template <std::ptrdiff_t Levels = 1>
-    static constexpr KCell<Open, details::apply(IndexShift, 0, Levels), LevelShift + Levels> up() noexcept { return {}; }
+    static constexpr
+    KCells<
+        KCell<Open, details::shift(IndexShift, 0, Levels), LevelShift + Levels>,
+        KCell<Open, details::shift(IndexShift, 1, Levels), LevelShift + Levels>
+    > up() noexcept { return {}; }
 
     /// Changing level while keeping the same topology
-    // FIXME: should returns 2 cells
     template <std::ptrdiff_t Levels = 1>
-    static constexpr KCell<Open, details::apply(IndexShift, 0, -Levels), LevelShift - Levels> down() noexcept { return {}; }
+    static constexpr KCells<KCell<Open, details::shift(IndexShift, 0, -Levels), LevelShift - Levels>> down() noexcept { return {}; }
 
     /// Apply the level/index shifts of the current cell to a given index (or interval)
     template <typename T>
-    static constexpr auto apply(T && i) noexcept
+    static constexpr auto shift(T && i) noexcept
     {
-        return details::apply(std::forward<T>(i), IndexShift, LevelShift);
+        return details::shift(std::forward<T>(i), IndexShift, LevelShift);
     }
 
     template <typename Function, typename Index>
-    static constexpr void apply(Function && fn, std::size_t level, Index && i) { std::forward<Function>(fn)(level + LevelShift, apply(std::forward<Index>(i))); }
+    static constexpr auto shift(Function && fn, std::size_t level, Index && i)
+    {
+        return std::forward<Function>(fn)(level + LevelShift, shift(std::forward<Index>(i)));
+    }
 };
 
 template <
