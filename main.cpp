@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "cell.hpp"
+#include "kcell.hpp"
 #include "interval.hpp"
 
 int main()
