@@ -6,6 +6,13 @@
 
 #include "kcells.hpp"
 
+// Pre-declaration
+template <
+    bool Open,
+    std::ptrdiff_t IndexShift,
+    std::ptrdiff_t LevelShift
+>
+struct KCell;
 namespace details
 {
     /// Bitwise shift with signed shift (<< for positive shift, >> for negative shift)
@@ -24,6 +31,14 @@ namespace details
     {
         return bitwise_shift(std::forward<T>(i), level_shift) + index_shift;
     }
+
+    /// Allows KCell to be stored in a KCells
+    template <
+        bool Open,
+        std::ptrdiff_t IndexShift,
+        std::ptrdiff_t LevelShift
+    >
+    struct is_kcell<KCell<Open, IndexShift, LevelShift>> : std::true_type {};
 
 } // namespace details
 
@@ -50,6 +65,9 @@ struct KCell
 
     /// Dimension of the cell
     static constexpr dimension_type dimension() noexcept { return static_cast<dimension_type>(Open); }
+
+    /// Dimension of the space
+    static constexpr dimension_type size() noexcept { return 1; }
 
     // Convenient template parameter access
     static constexpr bool isOpen() noexcept { return Open; }
@@ -114,6 +132,7 @@ struct KCell
         return std::forward<Function>(fn)(level + LevelShift, shift(std::forward<Index>(i)));
     }
 };
+
 
 template <
     bool Open,

@@ -23,6 +23,7 @@ struct None {};
 
 namespace details
 {
+    /// Replace void return by None type in order to be assigned
     template <typename Function, typename... Args>
     auto valid_return(Function && fn, Args && ... args)
     {
@@ -42,16 +43,24 @@ namespace details
     >
     constexpr auto foreach_impl(Function && fn, KCellTuple<T...> const& kcells, std::index_sequence<I...>)
     {
-        return std::tuple{valid_return(fn, kcells.template get<I>()) ...};
+        // FIXME: find a better way...
+        if constexpr (sizeof...(I) > 1)
+            // Using std::tuple{} to enforce execution order of the fold expression
+            return std::tuple{valid_return(fn, kcells.template get<I>()) ...};
+        else
+            // With only one argument, that is possibly a tuple, use make_tuple to enforce creating nested tuples
+            // instead of calling copy constructor.
+            return std::make_tuple(valid_return(fn, kcells.template get<I>()) ...);
+
     }
 
     template <
         typename Function,
         typename... T
     >
-    static constexpr void foreach(Function && fn, KCellTuple<T...> const& kcells)
+    static constexpr auto foreach(Function && fn, KCellTuple<T...> const& kcells)
     {
-        foreach_impl(
+        return foreach_impl(
             std::forward<Function>(fn),
             kcells,
             std::make_index_sequence<KCellTuple<T...>::size()>{}
@@ -65,11 +74,13 @@ namespace details
     >
     constexpr auto enumerate_impl(Function && fn, KCellTuple<T...> const& kcells, std::index_sequence<I...>)
     {
-        return std::tuple{valid_return(
-            fn,
-            std::integral_constant<std::size_t, I>{},
-            kcells.template get<I>()
-        ) ...};
+        if constexpr (sizeof...(I) > 1)
+            // Using std::tuple{} to enforce execution order of the fold expression
+            return std::tuple{valid_return(fn, std::integral_constant<std::size_t, I>{}, kcells.template get<I>()) ...};
+        else
+            // With only one argument, that is possibly a tuple, use make_tuple to enforce creating nested tuples
+            // instead of calling copy constructor.
+            return std::make_tuple(valid_return(fn, std::integral_constant<std::size_t, I>{}, kcells.template get<I>()) ...);
     }
 
     template <
@@ -110,13 +121,6 @@ namespace details
 
     template <typename T> struct is_kcell : std::false_type {};
 
-    template <
-        bool Open,
-        std::ptrdiff_t IndexShift,
-        std::ptrdiff_t LevelShift
-    >
-    struct is_kcell<KCell<Open, IndexShift, LevelShift>> : std::true_type {};
-
     template <typename T> constexpr bool is_kcell_v = is_kcell<T>::value;
 
 }
@@ -141,9 +145,9 @@ struct KCellTuple
     }
 
     template <typename Function>
-    static constexpr void foreach(Function && fn)
+    static constexpr auto foreach(Function && fn)
     {
-        details::foreach(std::forward<Function>(fn), KCellTuple{});
+        return details::foreach(std::forward<Function>(fn), KCellTuple{});
     }
 
     template <typename Function>
@@ -162,6 +166,9 @@ struct KCellTuple
 /// Deduction guide
 template <typename... T>
 KCellTuple(T...) -> KCellTuple<std::decay_t<T>...>;
+
+template <typename... T>
+KCellTuple(std::tuple<T...>) -> KCellTuple<T...>;
 
 template <
     std::size_t I,
@@ -182,7 +189,7 @@ template <typename... T>
 std::ostream& operator<< (std::ostream& out, KCellTuple<T...> const& kcells)
 {
     out << "KCellTuple{";
-    kcells.foreach([&out] (auto cell) { out << cell << ", "; });
+    kcells.enumerate([&out, &kcells] (auto i, auto cell) { out << cell << ((i < kcells.size() - 1) ? ", " : ""); });
     out << "}";
     return out;
 }

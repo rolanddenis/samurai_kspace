@@ -1,5 +1,6 @@
 set(TESTS_FILES
     test_kcell
+    test_kcells
     test_kcellnd
 )
 
