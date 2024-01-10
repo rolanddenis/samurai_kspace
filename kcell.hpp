@@ -73,17 +73,33 @@ struct KCell
 
 
     /// Changing level while keeping the same topology
-    // FIXME: should returns 2 cells
     template <std::ptrdiff_t Levels = 1>
     static constexpr
-    KCells<
-        KCell<Open, details::shift(IndexShift, 0, Levels), LevelShift + Levels>,
-        KCell<Open, details::shift(IndexShift, 1, Levels), LevelShift + Levels>
-    > up() noexcept { return {}; }
+    auto up() noexcept
+    {
+        if constexpr (Levels < 0)
+            return down<-Levels>();
+        if constexpr (Levels == 0)
+            return KCells<KCell>{};
+        else if constexpr (Levels == 1)
+            return KCells<
+                KCell<Open, details::shift(IndexShift, 0, Levels), LevelShift + Levels>,
+                KCell<Open, details::shift(IndexShift, 1, Levels), LevelShift + Levels>
+            >{};
+        else
+            return up().template up<Levels - 1>();
+    }
 
     /// Changing level while keeping the same topology
     template <std::ptrdiff_t Levels = 1>
-    static constexpr KCells<KCell<Open, details::shift(IndexShift, 0, -Levels), LevelShift - Levels>> down() noexcept { return {}; }
+    static constexpr
+    auto down() noexcept
+    {
+        if constexpr (Levels < 0)
+            return up<-Levels>();
+        else
+            return KCells<KCell<Open, details::shift(IndexShift, 0, -Levels), LevelShift - Levels>>{};
+    }
 
     /// Apply the level/index shifts of the current cell to a given index (or interval)
     template <typename T>
