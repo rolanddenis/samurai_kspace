@@ -36,33 +36,72 @@ namespace details
     }
 
     template <
-        typename... T,
         typename Function,
+        typename... T,
         std::size_t... I
     >
-    constexpr auto foreach(Function && fn, KCellTuple<T...> const& kcells, std::index_sequence<I...>)
+    constexpr auto foreach_impl(Function && fn, KCellTuple<T...> const& kcells, std::index_sequence<I...>)
     {
         return std::make_tuple(valid_return(fn, kcells.template get<I>()) ...);
     }
 
     template <
-        typename... T,
         typename Function,
+        typename... T
+    >
+    static constexpr void foreach(Function && fn, KCellTuple<T...> const& kcells)
+    {
+        foreach_impl(
+            std::forward<Function>(fn),
+            kcells,
+            std::make_index_sequence<kcells.size()>{}
+        );
+    }
+
+    template <
+        typename Function,
+        typename... T,
         std::size_t... I
     >
-    constexpr auto enumerate(Function && fn, KCellTuple<T...> const& kcells, std::index_sequence<I...>)
+    constexpr auto enumerate_impl(Function && fn, KCellTuple<T...> const& kcells, std::index_sequence<I...>)
     {
         return std::make_tuple(valid_return(fn, I, kcells.template get<I>()) ...);
     }
 
     template <
-        typename... T,
         typename Function,
+        typename... T
+    >
+    static constexpr auto enumerate(Function && fn, KCellTuple<T...> const& kcells)
+    {
+        return enumerate_impl(
+            std::forward<Function>(fn),
+            kcells,
+            std::make_index_sequence<kcells.size()>{}
+        );
+    }
+
+    template <
+        typename Function,
+        typename... T,
         std::size_t... I
     >
-    constexpr auto apply(Function && fn, KCellTuple<T...> const& kcells, std::index_sequence<I...>)
+    constexpr auto apply_impl(Function && fn, KCellTuple<T...> const& kcells, std::index_sequence<I...>)
     {
         return fn(kcells.template get<I>() ...);
+    }
+
+    template <
+        typename Function,
+        typename... T
+    >
+    static constexpr auto apply(Function && fn, KCellTuple<T...> const& kcells)
+    {
+        return apply_impl(
+            std::forward<Function>(fn),
+            kcells,
+            std::make_index_sequence<kcells.size()>{}
+        );
     }
 
     template <typename T> struct is_kcell : std::false_type {};
@@ -100,31 +139,19 @@ struct KCellTuple
     template <typename Function>
     static constexpr void foreach(Function && fn)
     {
-        details::foreach(
-            std::forward<Function>(fn),
-            KCellTuple<T...>{},
-            std::make_index_sequence<size()>{}
-        );
+        details::foreach(std::forward<Function>(fn), KCellTuple{});
     }
 
     template <typename Function>
     static constexpr auto apply(Function && fn)
     {
-        return details::apply(
-            std::forward<Function>(fn),
-            KCellTuple<T...>{},
-            std::make_index_sequence<size()>{}
-        );
+        return details::apply(std::forward<Function>(fn), KCellTuple{});
     }
 
     template <typename Function>
     static constexpr auto enumerate(Function && fn)
     {
-        return details::enumerate(
-            std::forward<Function>(fn),
-            KCellTuple<T...>{},
-            std::make_index_sequence<size()>{}
-        );
+        return details::enumerate(std::forward<Function>(fn), KCellTuple{});
     }
 };
 

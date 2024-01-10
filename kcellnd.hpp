@@ -28,6 +28,23 @@ struct KCellND : KCellTuple<T...>
         );
     }
 
+    static constexpr auto dimension() noexcept
+    {
+        return KCellND::apply(
+            [](auto... cell) { return (cell.topology() + ...); }
+        );
+    }
+
+    /*
+    template <
+        std::size_t I,
+        std::ptrdiff_t Steps = 1
+    >
+    static constexpr auto next() noexcept
+    {
+        return KCellND::
+    }*/
+
 };
 
 /// Deduction guide

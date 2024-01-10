@@ -116,8 +116,9 @@ int main()
 
     std::cout << "Testing KCell in nD..." << std::endl;
     KCellND c3d(KCell<false>{}, cell, cell);
-    std::cout << c3d << std::endl;
-    std::cout << c3d.topology() << std::endl;
+    std::cout << "c3d = " << c3d << std::endl;
+    std::cout << "topology = " << c3d.topology() << std::endl;
+    std::cout << "dimension = " << c3d.dimension() << std::endl;
 
     return 0;
 }
