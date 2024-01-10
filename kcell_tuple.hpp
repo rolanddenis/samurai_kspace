@@ -42,7 +42,7 @@ namespace details
     >
     constexpr auto foreach_impl(Function && fn, KCellTuple<T...> const& kcells, std::index_sequence<I...>)
     {
-        return std::make_tuple(valid_return(fn, kcells.template get<I>()) ...);
+        return std::tuple{valid_return(fn, kcells.template get<I>()) ...};
     }
 
     template <
@@ -65,7 +65,11 @@ namespace details
     >
     constexpr auto enumerate_impl(Function && fn, KCellTuple<T...> const& kcells, std::index_sequence<I...>)
     {
-        return std::make_tuple(valid_return(fn, I, kcells.template get<I>()) ...);
+        return std::tuple{valid_return(
+            fn,
+            std::integral_constant<std::size_t, I>{},
+            kcells.template get<I>()
+        ) ...};
     }
 
     template <
