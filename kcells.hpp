@@ -84,7 +84,7 @@ constexpr KCells<T..., U...> operator+ (KCells<T...>, KCells<U...>) noexcept
 }
 
 template <typename... T>
-std::ostream& operator<< (std::ostream& out, KCells<T...> kcells)
+std::ostream& operator<< (std::ostream& out, KCells<T...> const& kcells)
 {
     out << "KCells{";
     kcells.foreach([&out] (auto cell) { out << cell << ", "; });

@@ -148,7 +148,7 @@ constexpr std::size_t size(KCellTuple<T...>) noexcept
 }
 
 template <typename... T>
-std::ostream& operator<< (std::ostream& out, KCellTuple<T...> kcells)
+std::ostream& operator<< (std::ostream& out, KCellTuple<T...> const& kcells)
 {
     out << "KCellTuple{";
     kcells.foreach([&out] (auto cell) { out << cell << ", "; });

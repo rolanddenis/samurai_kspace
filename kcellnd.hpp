@@ -10,6 +10,7 @@
 template <typename... T>
 struct KCellND : KCellTuple<T...>
 {
+    static_assert(sizeof...(T) > 0, "KCellND cannot be of dimension 0");
     static_assert(((T::levelShift() == KCellND::template kcell_type<0>::levelShift()) && ...), "All KCell must have the same level shift");
 
     constexpr KCellND(...) {}
