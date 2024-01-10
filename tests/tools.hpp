@@ -2,6 +2,22 @@
 #include <vector>
 #include <iostream>
 #include <cstdlib>
+#include <tuple>
+
+template <typename... T, std::size_t... Index>
+void disp_tuple_impl(std::ostream& out, std::tuple<T...> const& t, std::index_sequence<Index...>)
+{
+    ((out << std::get<Index>(t) << ", "), ...);
+}
+
+template <typename... T>
+std::ostream & operator<< (std::ostream& out, std::tuple<T...> const& t)
+{
+    out << "tuple(";
+    disp_tuple_impl(out, t, std::make_index_sequence<sizeof...(T)>{});
+    out << ")";
+    return out;
+}
 
 std::vector<bool> tests_results;
 

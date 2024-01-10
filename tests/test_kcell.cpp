@@ -4,22 +4,7 @@
 #include "kcell.hpp"
 #include "kcells.hpp"
 #include "interval.hpp"
-#include "kcellnd.hpp"
-
-template <typename... T, std::size_t... Index>
-void disp_tuple_impl(std::ostream& out, std::tuple<T...> const& t, std::index_sequence<Index...>)
-{
-    ((out << std::get<Index>(t) << ", "), ...);
-}
-
-template <typename... T>
-std::ostream & operator<< (std::ostream& out, std::tuple<T...> const& t)
-{
-    out << "tuple(";
-    disp_tuple_impl(out, t, std::make_index_sequence<sizeof...(T)>{});
-    out << ")";
-    return out;
-}
+#include "tools.hpp"
 
 int main()
 {
@@ -125,15 +110,6 @@ int main()
     std::cout << (cn.next() + cn).next() << std::endl;
 
     std::cout << std::endl;
-
-    std::cout << "Testing KCell in nD..." << std::endl;
-    KCellND c3d(KCell<false>{}, cell, cell);
-    std::cout << "c3d = " << c3d << std::endl;
-    std::cout << "topology = " << c3d.topology() << std::endl;
-    std::cout << "dimension = " << c3d.dimension() << std::endl;
-
-    std::cout << std::endl;
-    auto c3dn = c3d.next<0>();
-    std::cout << "c3dn = " << c3dn << std::endl;
+    
     return 0;
 }

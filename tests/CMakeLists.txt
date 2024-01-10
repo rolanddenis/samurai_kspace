@@ -1,8 +1,9 @@
 set(TESTS_FILES
-    test_kcell.cpp
+    test_kcell
+    test_kcellnd
 )
 
 foreach(FILE ${TESTS_FILES})
-  add_executable(${FILE} ${FILE})
+  add_executable(${FILE} ${FILE}.cpp)
   add_test(${FILE} ${FILE})
 endforeach(FILE)
