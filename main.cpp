@@ -4,6 +4,7 @@
 #include "kcell.hpp"
 #include "kcells.hpp"
 #include "interval.hpp"
+#include "kcellnd.hpp"
 
 template <typename... T, std::size_t... Index>
 void disp_tuple_impl(std::ostream& out, std::tuple<T...> const& t, std::index_sequence<Index...>)
@@ -112,6 +113,11 @@ int main()
     std::cout << (cn.next() + cn).next() << std::endl;
 
     std::cout << std::endl;
+
+    std::cout << "Testing KCell in nD..." << std::endl;
+    KCellND c3d(KCell<false>{}, cell, cell);
+    std::cout << c3d << std::endl;
+    std::cout << c3d.topology() << std::endl;
 
     return 0;
 }
