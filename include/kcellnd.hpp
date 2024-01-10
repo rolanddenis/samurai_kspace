@@ -50,3 +50,13 @@ struct KCellND : KCellTuple<T...>
 /// Deduction guide
 template <typename... T>
 KCellND(T...) -> KCellND<std::decay_t<T>...>;
+
+template <typename... T, typename = std::enable_if_t<(sizeof...(T) > 0)>>
+std::ostream& operator<< (std::ostream& out, KCellND<T...> const& kcell)
+{
+    out << "KCellND{";
+    kcell.foreach([&out] (auto cell) { out << cell << ", "; });
+    out << "}";
+    return out;
+}
+
