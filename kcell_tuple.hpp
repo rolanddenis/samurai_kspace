@@ -54,7 +54,7 @@ namespace details
         foreach_impl(
             std::forward<Function>(fn),
             kcells,
-            std::make_index_sequence<kcells.size()>{}
+            std::make_index_sequence<KCellTuple<T...>::size()>{}
         );
     }
 
@@ -81,7 +81,7 @@ namespace details
         return enumerate_impl(
             std::forward<Function>(fn),
             kcells,
-            std::make_index_sequence<kcells.size()>{}
+            std::make_index_sequence<KCellTuple<T...>::size()>{}
         );
     }
 
@@ -104,7 +104,7 @@ namespace details
         return apply_impl(
             std::forward<Function>(fn),
             kcells,
-            std::make_index_sequence<kcells.size()>{}
+            std::make_index_sequence<KCellTuple<T...>::size()>{}
         );
     }
 
