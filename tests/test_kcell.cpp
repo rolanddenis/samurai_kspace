@@ -48,6 +48,18 @@ int main()
     cu.shift(fn, 10, 10);
     std::cout << std::endl;
 
+    auto cuu = cu.up();
+    std::cout << "cuu = " << cuu << std::endl;
+    std::cout << cuu.shift(i) << std::endl;
+    cuu.shift(fn, 10, 10);
+    std::cout << std::endl;
+
+    auto cu2 = cell.up<2>();
+    std::cout << "cu2 = " << cu2 << std::endl;
+    std::cout << cu2.shift(i) << std::endl;
+    cu2.shift(fn, 10, 10);
+    std::cout << std::endl;
+
     auto cun = cu.next();
     std::cout << "cun = " << cun << std::endl;
     std::cout << cun.shift(i) << std::endl;
@@ -79,7 +91,7 @@ int main()
 
 
 
-    auto cd = cell.up<-2>();
+    auto cd = cell.down();
     std::cout << "cd = " << cd << std::endl;
     std::cout << cd.shift(i) << std::endl;
     cd.shift(fn, 10, 10);
@@ -120,5 +132,8 @@ int main()
     std::cout << "topology = " << c3d.topology() << std::endl;
     std::cout << "dimension = " << c3d.dimension() << std::endl;
 
+    std::cout << std::endl;
+    auto c3dn = c3d.next<0>();
+    std::cout << "c3dn = " << c3dn << std::endl;
     return 0;
 }
