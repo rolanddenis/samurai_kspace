@@ -98,7 +98,7 @@ int main()
 
 
     std::cout << "Testing KCells..." << std::endl;
-    KCells cells(cell, cu, cun);
+    KCells cells(cell, KCell<false>{}, KCell<true, 1>{});
     std::cout << cells << std::endl;
 
     using std::get;
