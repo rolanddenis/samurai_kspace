@@ -8,13 +8,7 @@
 
 int main()
 {
-    auto fn = [] (std::size_t level, auto idx)
-    {
-        std::cout << "fn: level=" << level << ", idx=" << idx << std::endl;
-    };
-
     KCell cell;
-    Interval i{10, 17};
 
     std::cout << "Testing KCells..." << std::endl;
 

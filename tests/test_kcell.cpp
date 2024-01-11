@@ -82,17 +82,29 @@ int main()
     cd.shift(fn, 10, 10);
     std::cout << std::endl;
 
-    auto ci = cell.nextIncident();
+    auto ci = cell.incident();
     std::cout << "ci = " << ci << std::endl;
     std::cout << ci.shift(i) << std::endl;
     ci.shift(fn, 10, 10);
     std::cout << std::endl;
 
-    auto cii = ci.nextIncident();
+    auto cii = ci.incident();
     std::cout << "cii = " << cii << std::endl;
     std::cout << cii.shift(i) << std::endl;
     cii.shift(fn, 10, 10);
     std::cout << std::endl;
 
+    auto c = cii.incident<-2>();
+    std::cout << "c = " << c << std::endl;
+    std::cout << c.shift(i) << std::endl;
+    c.shift(fn, 10, 10);
+    std::cout << std::endl;
+
+    auto cli = cell.lowerIncident();
+    std::cout << "cli = " << cli << std::endl;
+    std::cout << cli.shift(i) << std::endl;
+    cli.shift(fn, 10, 10);
+    std::cout << std::endl;
+    
     return 0;
 }

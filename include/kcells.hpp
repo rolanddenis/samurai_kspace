@@ -43,10 +43,17 @@ struct KCells : KCellTuple<T...>
     }
 
     template <std::ptrdiff_t Steps = 1>
-    static constexpr auto nextIncident() noexcept
+    static constexpr auto incident() noexcept
     {
         return KCells::apply(
-            [] (auto... cell) { return (cell.template nextIncident<Steps>() + ...); }
+            [] (auto... cell) { return (cell.template incident<Steps>() + ...); }
+        );
+    }
+
+    static constexpr auto lowerIncident() noexcept
+    {
+        return KCells::apply(
+            [] (auto... cell) { return (cell.lowerIncident() + ...); }
         );
     }
 
@@ -68,7 +75,7 @@ struct KCells : KCellTuple<T...>
 
     template <
         typename... Index,
-        typename = std::enable_if_t<(kcell_size() > 0 && sizeof...(Index) == kcell_size())>
+        typename = std::enable_if_t<(kcell_size() == 0 || sizeof...(Index) == kcell_size())>
     >
     static constexpr auto shift(Index && ... i) noexcept
     {
@@ -80,7 +87,7 @@ struct KCells : KCellTuple<T...>
     template <
         typename Function,
         typename... Index,
-        typename = std::enable_if_t<(kcell_size() > 0 && sizeof...(Index) == kcell_size())>
+        typename = std::enable_if_t<(kcell_size() == 0 || sizeof...(Index) == kcell_size())>
     >
     static constexpr void shift(Function && fn, std::size_t level, Index && ... i)
     {

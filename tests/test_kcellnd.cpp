@@ -74,5 +74,43 @@ int main()
     c3du.shift(fn, 5, i, 2, 3);
     std::cout << std::endl;
 
+    std::cout << "Testing incidence:" << std::endl;
+
+    auto c3di1 = c3d.incident<1>();
+    std::cout << "c3di1 = " << c3di1 << std::endl;
+    std::cout << "fn(level=5, i, 2, 3):" << std::endl;
+    c3di1.shift(fn, 5, i, 2, 3);
+    std::cout << std::endl;
+
+    auto c3dli = c3d.lowerIncident();
+    std::cout << "c3dli = " << c3dli << std::endl;
+    std::cout << "fn(level=5, i, 2, 3):" << std::endl;
+    c3dli.shift(fn, 5, i, 2, 3);
+    std::cout << std::endl;
+    
+    auto c3di1li = c3di1.lowerIncident();
+    std::cout << "c3di1li = " << c3di1li << std::endl;
+    std::cout << "fn(level=5, i, 2, 3):" << std::endl;
+    c3di1li.shift(fn, 5, i, 2, 3);
+    std::cout << std::endl;
+
+    auto c3di1i2 = c3di1.incident<2>();
+    std::cout << "c3di1i2 = " << c3di1i2 << std::endl;
+    std::cout << "fn(level=5, i, 2, 3):" << std::endl;
+    c3di1i2.shift(fn, 5, i, 2, 3);
+    std::cout << std::endl;
+
+    auto c3di1i2li = c3di1i2.lowerIncident();
+    std::cout << "c3di1i2li = " << c3di1i2li << std::endl;
+    std::cout << "fn(level=5, i, 2, 3):" << std::endl;
+    c3di1i2li.shift(fn, 5, i, 2, 3);
+    std::cout << std::endl;
+
+    auto c3di1i2lili = c3di1i2li.lowerIncident();
+    std::cout << "c3di1i2lili = " << c3di1i2lili << std::endl;
+    std::cout << "fn(level=5, i, 2, 3):" << std::endl;
+    c3di1i2lili.shift(fn, 5, i, 2, 3);
+    std::cout << std::endl;
+
     return 0;
 }

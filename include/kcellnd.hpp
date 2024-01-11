@@ -29,7 +29,7 @@ namespace details
 
             // Outer loop
             auto tmp = kcells.foreach(
-                [&fn, &kcell, &next_dim](auto lhs)
+                [&next_dim](auto lhs)
                 {
                     // Inner loop
                     return std::apply(
@@ -58,7 +58,7 @@ namespace details
     constexpr auto enumerate_cartesian(Function && fn, KCellND<T...> const& kcell)
     {
         return std::apply(
-            [] (auto... kcells) { return (KCells(KCellND(kcells)) + ...); },
+            [] (auto... kcells) { return (KCells(KCellND(kcells)) + ... + KCells{}); },
             enumerate_cartesian_helper<0>(std::forward<Function>(fn), kcell)
         );
     }
@@ -129,6 +129,47 @@ struct KCellND : KCellTuple<T...>
     static constexpr auto prev() noexcept
     {
         return next<I, -Steps>();
+    }
+
+    /// Forward/backward move including incident cells in the direction I
+    template <
+        std::size_t I,
+        std::ptrdiff_t Steps = 1
+    >
+    static constexpr auto incident() noexcept
+    {
+        return details::enumerate_cartesian(
+            [] (auto i, auto cell)
+            {
+                return cell.template incident<(decltype(i)::value == I) ? Steps : 0>();
+            },
+            KCellND{}
+        );
+    }
+
+    private:
+    template <std::size_t... I>
+    static constexpr auto lowerIncident_helper(std::index_sequence<I...>) noexcept
+    {
+        return (
+            details::enumerate_cartesian(
+                [] (auto i, auto cell)
+                {
+                    if constexpr (decltype(i)::value == I)
+                        return cell.lowerIncident();
+                    else
+                        return KCells(cell);
+                },
+                KCellND{}
+            ) + ... + KCells{}
+        );
+    }
+
+    public:
+    /// Neighborhood of incident cells of dimension dim-1 (eg for a face in 2D, it returns it's edges)
+    static constexpr auto lowerIncident() noexcept
+    {
+        return lowerIncident_helper(std::make_index_sequence<KCellND::size()>{});
     }
 
     /// Changing level while keeping the same topology
