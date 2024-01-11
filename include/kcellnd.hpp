@@ -5,6 +5,7 @@
 #include "kcell.hpp"
 #include "kcell_tuple.hpp"
 
+// Pre-declaration
 template <typename... T>
 struct KCellND;
 
@@ -26,9 +27,11 @@ namespace details
         {
             auto next_dim = enumerate_cartesian_helper<I + 1>(fn, kcell);
 
+            // Outer loop
             auto tmp = kcells.foreach(
                 [&fn, &kcell, &next_dim](auto lhs)
                 {
+                    // Inner loop
                     return std::apply(
                         [&lhs](auto... rhs)
                         {
@@ -38,6 +41,8 @@ namespace details
                     );
                 }
             );
+
+            // Concatenate results
             return std::apply(
                 [] (auto... t) { return std::tuple_cat(t...); },
                 tmp
@@ -72,6 +77,7 @@ struct KCellND : KCellTuple<T...>
 
     constexpr KCellND(...) {}
 
+    /// Topology defines the type of cell (eg in 2D: face, vertical edge, horizontal edge and vertex)
     static constexpr auto topology() noexcept
     {
         return std::apply(
@@ -85,6 +91,7 @@ struct KCellND : KCellTuple<T...>
         );
     }
 
+    /// Dimension of the cell (eg in 2D: 2 for a face, 1 for a edge, 0 for a vertex)
     static constexpr auto dimension() noexcept
     {
         return KCellND::apply(
@@ -92,11 +99,13 @@ struct KCellND : KCellTuple<T...>
         );
     }
 
+    /// Returns common shift of the representation level
     static constexpr auto levelShift() noexcept
     {
         return KCellND::template get<0>().levelShift();
     }
 
+    /// Get next cell (or the Steps-th next) of same topology in the direction I
     template <
         std::size_t I,
         std::ptrdiff_t Steps = 1
@@ -112,13 +121,31 @@ struct KCellND : KCellTuple<T...>
         );
     }
 
-    // TODO: multi-level up & down
+    /// Get previous cell (or the Steps-th previous) of same topology in the direction I
+    template <
+        std::size_t I,
+        std::ptrdiff_t Steps = 1
+    >
+    static constexpr auto prev() noexcept
+    {
+        return next<I, -Steps>();
+    }
+
+    /// Changing level while keeping the same topology
+    template <std::ptrdiff_t Levels = 1>
     static constexpr auto up() noexcept
     {
         return details::enumerate_cartesian(
-            [] (auto, auto cell) { return cell.up(); },
+            [] (auto, auto cell) { return cell.template up<Levels>(); },
             KCellND{}
         );
+    }
+
+    /// Changing level while keeping the same topology
+    template <std::ptrdiff_t Levels = 1>
+    static constexpr auto down() noexcept
+    {
+        return up<-Levels>();
     }
 
     /// Apply the level/index shifts of the current cell to a given index (or interval)
