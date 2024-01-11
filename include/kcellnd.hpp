@@ -105,6 +105,15 @@ struct KCellND : KCellTuple<T...>
         return KCellND::template get<0>().levelShift();
     }
 
+    /// Topology along a given direction
+    template <
+        std::size_t I
+    >
+    static constexpr bool isOpen() noexcept
+    {
+        return KCellND::template get<I>.isOpen();
+    }
+
     /// Get next cell (or the Steps-th next) of same topology in the direction I
     template <
         std::size_t I,
