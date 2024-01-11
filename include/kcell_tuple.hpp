@@ -123,6 +123,15 @@ namespace details
 
     template <typename T> constexpr bool is_kcell_v = is_kcell<T>::value;
 
+    template <
+        typename... T,
+        typename KCell
+    >
+    static constexpr bool has(KCellTuple<T...>, KCell)
+    {
+        return (std::is_same_v<T, KCell> || ... || false);
+    }
+
 }
 
 /// Simple tuple of KCell 
@@ -160,6 +169,12 @@ struct KCellTuple
     static constexpr auto enumerate(Function && fn)
     {
         return details::enumerate(std::forward<Function>(fn), KCellTuple{});
+    }
+
+    template <typename KCell>
+    static constexpr bool has(KCell const& kcell)
+    {
+        return details::has(KCellTuple{}, kcell);
     }
 };
 

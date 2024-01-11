@@ -34,5 +34,9 @@ int main()
 
     std::cout << "cells + cell = " << (cells + cell) << std::endl;
 
+    std::cout << "cells.has(KCell<false>) = " << cells.has(KCell<false>{}) << std::endl;
+    std::cout << "cells.has(KCell<false, 1>) = " << cells.has(KCell<false, 1>{}) << std::endl;
+
+
     return 0;
 }
