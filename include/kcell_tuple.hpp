@@ -127,11 +127,42 @@ namespace details
         typename... T,
         typename KCell
     >
-    static constexpr bool has(KCellTuple<T...>, KCell)
+    static constexpr bool has(KCellTuple<T...>, KCell) noexcept
     {
         return (std::is_same_v<T, KCell> || ... || false);
     }
 
+    template <
+        typename... U
+    >
+    static constexpr auto unique_helper(KCellTuple<U...>, KCellTuple<> const&) noexcept
+    {
+        // "KCellTuple<> const&" in the parameter list to delay instantiation check
+        return KCellTuple<U...>{};
+    }
+
+    template <
+        typename... U,
+        typename Head,
+        typename... Tail
+    >
+    static constexpr auto unique_helper(KCellTuple<U...>, KCellTuple<Head, Tail...>) noexcept
+    {
+        if constexpr (KCellTuple<U...>::template has(Head{}))
+            return unique_helper(KCellTuple<U...>{}, KCellTuple<Tail...>{});
+        else
+            return unique_helper(KCellTuple<U..., Head>{}, KCellTuple<Tail...>{});
+    }
+
+    template <
+        typename... T,
+        typename... U, // Fake variadic template to delay instantiation check
+        typename = std::enable_if_t<sizeof...(U) == 0>
+    >
+    static constexpr auto unique(KCellTuple<T...>) noexcept
+    {
+        return unique_helper(KCellTuple<U...>{}, KCellTuple<T...>{});
+    }
 }
 
 /// Simple tuple of KCell 
@@ -145,36 +176,50 @@ struct KCellTuple
 
     constexpr KCellTuple(...) {}
 
+    /// Number of elements in the tuple
     static constexpr std::size_t size() noexcept { return sizeof...(T); }
 
+    /// Get the element at given index
     template <std::size_t I>
     static constexpr auto get() noexcept
     {
         return std::decay_t<decltype(std::get<I>(std::declval<std::tuple<T...>>()))>{};
     }
 
+    /// Call the given function to each element and pack the returned values in a tuple
     template <typename Function>
     static constexpr auto foreach(Function && fn)
     {
         return details::foreach(std::forward<Function>(fn), KCellTuple{});
     }
 
-    template <typename Function>
-    static constexpr auto apply(Function && fn)
-    {
-        return details::apply(std::forward<Function>(fn), KCellTuple{});
-    }
-
+    /** For each element, call the function with its index and the element
+     * and pack the returned values in a tuple
+     */
     template <typename Function>
     static constexpr auto enumerate(Function && fn)
     {
         return details::enumerate(std::forward<Function>(fn), KCellTuple{});
     }
 
+    /// Unfold all elements as the arguments of the given function
+    template <typename Function>
+    static constexpr auto apply(Function && fn)
+    {
+        return details::apply(std::forward<Function>(fn), KCellTuple{});
+    }
+
+    /// Membership operator (O(N))
     template <typename KCell>
-    static constexpr bool has(KCell const& kcell)
+    static constexpr bool has(KCell const& kcell) noexcept
     {
         return details::has(KCellTuple{}, kcell);
+    }
+
+    /// Remove the duplicated element type and returns the resulting KCellTuple (O(N²))
+    static constexpr auto unique() noexcept
+    {
+        return details::unique(KCellTuple{});
     }
 };
 

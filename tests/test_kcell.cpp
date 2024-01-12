@@ -106,5 +106,17 @@ int main()
     cli.shift(fn, 10, 10);
     std::cout << std::endl;
     
+    auto ciu = ci.up();
+    std::cout << "ciu = " << ciu << std::endl;
+    std::cout << ciu.shift(i) << std::endl;
+    ciu.shift(fn, 10, 10);
+    std::cout << std::endl; 
+    
+    auto c2 = ciu.down().incident<-1>().unique();
+    std::cout << "c2 = " << c2 << std::endl;
+    std::cout << c2.shift(i) << std::endl;
+    c2.shift(fn, 10, 10);
+    std::cout << std::endl; 
+
     return 0;
 }

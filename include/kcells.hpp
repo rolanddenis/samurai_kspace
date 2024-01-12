@@ -96,6 +96,14 @@ struct KCells : KCellTuple<T...>
         );
     }
 
+    /// Remove the duplicated element type and returns the resulting KCellTuple (O(N²))
+    static constexpr auto unique() noexcept
+    {
+        // FIXME: CRTP?
+        return KCellTuple<T...>::unique().apply(
+            [] (auto... kcell) { return KCells<decltype(kcell)...>{}; }
+        );
+    }
 };
 
 /// Deduction guide
@@ -104,6 +112,9 @@ KCells(T...) -> KCells<std::decay_t<T>...>;
 
 template <typename... T>
 KCells(std::tuple<T...>) -> KCells<T...>;
+
+template <typename... T>
+KCells(KCellTuple<T...>) -> KCells<T...>;
 
 /// Concatenation of KCells
 template <typename... T, typename... U>
