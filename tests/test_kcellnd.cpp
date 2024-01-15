@@ -112,5 +112,13 @@ int main()
     c3di1i2lili.shift(fn, 5, i, 2, 3);
     std::cout << std::endl;
 
+    auto face3d = KCellND{cell, cell, KCell<false>{}};
+    std::cout << "face3d = " << face3d << std::endl;
+    auto face3dui = face3d.upperIncident();
+    std::cout << "face3d.upperIncident() = " << face3dui << std::endl;
+    std::cout << "fn(level=5, i, 2, 3):" << std::endl;
+    face3dui.shift(fn, 5, i, 2, 3);
+    std::cout << std::endl;
+
     return 0;
 }

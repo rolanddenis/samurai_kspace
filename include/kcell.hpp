@@ -87,12 +87,21 @@ struct KCell
 
     /// Forward/backward move including incident cells (change topology for odd steps)
     template <std::ptrdiff_t Steps = 1>
-    static constexpr KCells<KCell<(khalimsky() + Steps) % 2, (khalimsky() + Steps)  / 2, LevelShift>> incident() noexcept { return {}; }
+    static constexpr KCells<KCell<(khalimsky() + Steps) % 2 != 0, ((khalimsky() + Steps) >> 1), LevelShift>> incident() noexcept { return {}; }
 
     /// Neighborhood of incident cells of dimension dim-1 (eg for a face in 2D, it returns it's edges)
     static constexpr auto lowerIncident() noexcept
     {
         if constexpr (dimension() == 0)
+            return KCells{};
+        else
+            return incident<-1>() + incident<1>();
+    }
+    
+    /// Neighborhood of incident cells of dimension dim+1 (eg for an edge in 2D, it returns it's two faces)
+    static constexpr auto upperIncident() noexcept
+    {
+        if constexpr (dimension() == size())
             return KCells{};
         else
             return incident<-1>() + incident<1>();

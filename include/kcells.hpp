@@ -57,6 +57,13 @@ struct KCells : KCellTuple<T...>
         );
     }
 
+    static constexpr auto upperIncident() noexcept
+    {
+        return KCells::apply(
+            [] (auto... cell) { return (cell.upperIncident() + ...); }
+        );
+    }
+
     template <std::ptrdiff_t Levels = 1>
     static constexpr auto up() noexcept
     {

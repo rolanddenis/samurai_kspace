@@ -181,6 +181,31 @@ struct KCellND : KCellTuple<T...>
         return lowerIncident_helper(std::make_index_sequence<KCellND::size()>{});
     }
 
+    private:
+    template <std::size_t... I>
+    static constexpr auto upperIncident_helper(std::index_sequence<I...>) noexcept
+    {
+        return (
+            details::enumerate_cartesian(
+                [] (auto i, auto cell)
+                {
+                    if constexpr (decltype(i)::value == I)
+                        return cell.upperIncident();
+                    else
+                        return KCells(cell);
+                },
+                KCellND{}
+            ) + ... + KCells{}
+        );
+    }
+
+    public:
+    /// Neighborhood of incident cells of dimension dim-1 (eg for a face in 2D, it returns it's edges)
+    static constexpr auto upperIncident() noexcept
+    {
+        return upperIncident_helper(std::make_index_sequence<KCellND::size()>{});
+    }
+
     /// Changing level while keeping the same topology
     template <std::ptrdiff_t Levels = 1>
     static constexpr auto up() noexcept

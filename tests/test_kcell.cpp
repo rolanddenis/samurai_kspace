@@ -112,7 +112,7 @@ int main()
     ciu.shift(fn, 10, 10);
     std::cout << std::endl; 
     
-    auto c2 = ciu.down().incident<-1>().unique();
+    auto c2 = ciu.down().incident<-1>().unique(); // Should contains only `cell`
     std::cout << "c2 = " << c2 << std::endl;
     std::cout << c2.shift(i) << std::endl;
     c2.shift(fn, 10, 10);
