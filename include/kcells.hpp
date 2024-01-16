@@ -30,7 +30,7 @@ struct KCells : KCellTuple<T...>
     static constexpr auto next() noexcept
     {
         return KCells::apply(
-            [] (auto... cell) { return (cell.template next<Steps>() + ...); }
+            [] (auto... cell) { return (cell.template next<Steps>() + ... + KCells<>{} ); }
         );
     }
 
@@ -38,7 +38,7 @@ struct KCells : KCellTuple<T...>
     static constexpr auto prev() noexcept
     {
         return KCells::apply(
-            [] (auto... cell) { return (cell.template prev<Steps>() + ...); }
+            [] (auto... cell) { return (cell.template prev<Steps>() + ... + KCells<>{} ); }
         );
     }
 
@@ -46,35 +46,35 @@ struct KCells : KCellTuple<T...>
     static constexpr auto incident() noexcept
     {
         return KCells::apply(
-            [] (auto... cell) { return (cell.template incident<Steps>() + ...); }
+            [] (auto... cell) { return (cell.template incident<Steps>() + ... + KCells<>{}); }
         );
     }
 
     static constexpr auto lowerIncident() noexcept
     {
         return KCells::apply(
-            [] (auto... cell) { return (cell.lowerIncident() + ...); }
+            [] (auto... cell) { return (cell.lowerIncident() + ... + KCells<>{}); }
         );
     }
 
     static constexpr auto upperIncident() noexcept
     {
         return KCells::apply(
-            [] (auto... cell) { return (cell.upperIncident() + ...); }
+            [] (auto... cell) { return (cell.upperIncident() + ... + KCells<>{}); }
         );
     }
 
     static constexpr auto properNeighborhood() noexcept
     {
         return KCells::apply(
-            [] (auto... cell) { return (cell.properNeighborhood() + ...); }
+            [] (auto... cell) { return (cell.properNeighborhood() + ... + KCells<>{}); }
         );
     }
 
     static constexpr auto neighborhood() noexcept
     {
         return KCells::apply(
-            [] (auto... cell) { return (cell.neighborhood() + ...); }
+            [] (auto... cell) { return (cell.neighborhood() + ... + KCells<>{}); }
         );
     }
 
@@ -82,7 +82,7 @@ struct KCells : KCellTuple<T...>
     static constexpr auto up() noexcept
     {
         return KCells::apply(
-            [] (auto... cell) { return (cell.template up<Levels>() + ...); }
+            [] (auto... cell) { return (cell.template up<Levels>() + ... + KCells<>{}); }
         );
     }
 
@@ -90,7 +90,7 @@ struct KCells : KCellTuple<T...>
     static constexpr auto down() noexcept
     {
         return KCells::apply(
-            [] (auto... cell) { return (cell.template down<Levels>() + ...); }
+            [] (auto... cell) { return (cell.template down<Levels>() + ... + KCells<>{}); }
         );
     }
 
