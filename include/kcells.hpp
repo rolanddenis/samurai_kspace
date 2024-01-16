@@ -64,6 +64,20 @@ struct KCells : KCellTuple<T...>
         );
     }
 
+    static constexpr auto properNeighborhood() noexcept
+    {
+        return KCells::apply(
+            [] (auto... cell) { return (cell.properNeighborhood() + ...); }
+        );
+    }
+
+    static constexpr auto neighborhood() noexcept
+    {
+        return KCells::apply(
+            [] (auto... cell) { return (cell.neighborhood() + ...); }
+        );
+    }
+
     template <std::ptrdiff_t Levels = 1>
     static constexpr auto up() noexcept
     {

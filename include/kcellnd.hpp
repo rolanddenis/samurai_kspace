@@ -63,6 +63,41 @@ namespace details
         );
     }
 
+    template <
+        typename Function,
+        typename... T,
+        std::size_t... I
+    >
+    static constexpr auto dimension_concatenate_helper(Function && fn, KCellND<T...> const& kcell, std::index_sequence<I...>) noexcept
+    {
+        return (
+            details::enumerate_cartesian(
+                [&fn] (auto i, auto cell)
+                {
+                    if constexpr (decltype(i)::value == I)
+                        return fn(i, cell);
+                    else
+                        return KCells(cell);
+                },
+                kcell
+            ) + ... + KCells{}
+        );
+    }
+
+    /// Concatenate the result of the function applied to each dimension separately (first only, then second only, then ...)
+    template <
+        typename Function,
+        typename... T
+    >
+    constexpr auto dimension_concatenate(Function && fn, KCellND<T...> const& kcell)
+    {
+        return dimension_concatenate_helper(
+            std::forward<Function>(fn),
+            kcell,
+            std::make_index_sequence<sizeof...(T)>{}
+        );
+    }
+
     /// Allows KCellND to be stored in a KCells
     template <typename... T>
     struct is_kcell<KCellND<T...>> : std::true_type {};
@@ -72,7 +107,7 @@ namespace details
 template <typename... T>
 struct KCellND : KCellTuple<T...>
 {
-    static_assert(sizeof...(T) > 0, "KCellND cannot be of dimension 0");
+    static_assert(sizeof...(T) > 0, "KCellND cannot be of size 0 (space dimension)");
     static_assert(((T::levelShift() == KCellND::template kcell_type<0>::levelShift()) && ...), "All KCell must have the same level shift");
 
     constexpr KCellND(...) {}
@@ -156,54 +191,37 @@ struct KCellND : KCellTuple<T...>
         );
     }
 
-    private:
-    template <std::size_t... I>
-    static constexpr auto lowerIncident_helper(std::index_sequence<I...>) noexcept
-    {
-        return (
-            details::enumerate_cartesian(
-                [] (auto i, auto cell)
-                {
-                    if constexpr (decltype(i)::value == I)
-                        return cell.lowerIncident();
-                    else
-                        return KCells(cell);
-                },
-                KCellND{}
-            ) + ... + KCells{}
-        );
-    }
-
-    public:
     /// Neighborhood of incident cells of dimension dim-1 (eg for a face in 2D, it returns it's edges)
     static constexpr auto lowerIncident() noexcept
     {
-        return lowerIncident_helper(std::make_index_sequence<KCellND::size()>{});
-    }
-
-    private:
-    template <std::size_t... I>
-    static constexpr auto upperIncident_helper(std::index_sequence<I...>) noexcept
-    {
-        return (
-            details::enumerate_cartesian(
-                [] (auto i, auto cell)
-                {
-                    if constexpr (decltype(i)::value == I)
-                        return cell.upperIncident();
-                    else
-                        return KCells(cell);
-                },
-                KCellND{}
-            ) + ... + KCells{}
+        return details::dimension_concatenate(
+            [] (auto, auto cell) { return cell.lowerIncident(); },
+            KCellND{}
         );
     }
 
-    public:
     /// Neighborhood of incident cells of dimension dim-1 (eg for a face in 2D, it returns it's edges)
     static constexpr auto upperIncident() noexcept
     {
-        return upperIncident_helper(std::make_index_sequence<KCellND::size()>{});
+        return details::dimension_concatenate(
+            [] (auto, auto cell) { return cell.upperIncident(); },
+            KCellND{}
+        );
+    }
+
+    /// Neighborhood of proper (current cell not included) adjacent cells (same topology)
+    static constexpr auto properNeighborhood() noexcept
+    {
+        return details::dimension_concatenate(
+            [] (auto, auto cell) { return cell.properNeighborhood(); },
+            KCellND{}
+        );
+    }
+
+    /// Neighborhood (current cell not included) adjacent cells (same topology), including current cell
+    static constexpr auto neighborhood() noexcept
+    {
+        return KCells(KCellND{}) + properNeighborhood();
     }
 
     /// Changing level while keeping the same topology

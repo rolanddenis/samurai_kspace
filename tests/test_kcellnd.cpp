@@ -35,19 +35,19 @@ int main()
     std::cout << std::endl;
 
     auto c2dn = c2d.next<0>();
-    std::cout << "c2dn = " << c2dn << std::endl;
+    std::cout << "c2d.next<0>() = " << c2dn << std::endl;
     std::cout << "fn(level=5, i, 2):" << std::endl;
     c2dn.shift(fn, 5, i, 2);
     std::cout << std::endl;
 
     auto c2du = c2d.up();
-    std::cout << "c2du = " << c2du << std::endl;
+    std::cout << "c2d.up() = " << c2du << std::endl;
     std::cout << "fn(level=5, i, 2):" << std::endl;
     c2du.shift(fn, 5, i, 2);
     std::cout << std::endl;
 
     auto c2d2u = c2d.up<2>();
-    std::cout << "c2d2u = " << c2d2u << std::endl;
+    std::cout << "c2d.up<2>() = " << c2d2u << std::endl;
     std::cout << "fn(level=5, i, 2):" << std::endl;
     c2d2u.shift(fn, 5, i, 2);
     std::cout << std::endl;
@@ -62,14 +62,14 @@ int main()
 
     std::cout << std::endl;
     auto c3dn = c3d.next<0>();
-    std::cout << "c3dn = " << c3dn << std::endl;
+    std::cout << "c3d.next<0>() = " << c3dn << std::endl;
     std::cout << "fn(level=5, i, 2, 3):" << std::endl;
     c3dn.shift(fn, 5, i, 2, 3);
 
     std::cout << std::endl;
 
     auto c3du = c3d.up();
-    std::cout << "c3du = " << c3du << std::endl;
+    std::cout << "c3d.up() = " << c3du << std::endl;
     std::cout << "fn(level=5, i, 2, 3):" << std::endl;
     c3du.shift(fn, 5, i, 2, 3);
     std::cout << std::endl;
@@ -77,37 +77,37 @@ int main()
     std::cout << "Testing incidence:" << std::endl;
 
     auto c3di1 = c3d.incident<1>();
-    std::cout << "c3di1 = " << c3di1 << std::endl;
+    std::cout << "c3d.incident<1>() = " << c3di1 << std::endl;
     std::cout << "fn(level=5, i, 2, 3):" << std::endl;
     c3di1.shift(fn, 5, i, 2, 3);
     std::cout << std::endl;
 
     auto c3dli = c3d.lowerIncident();
-    std::cout << "c3dli = " << c3dli << std::endl;
+    std::cout << "c3d.lowerIncident() = " << c3dli << std::endl;
     std::cout << "fn(level=5, i, 2, 3):" << std::endl;
     c3dli.shift(fn, 5, i, 2, 3);
     std::cout << std::endl;
     
     auto c3di1li = c3di1.lowerIncident();
-    std::cout << "c3di1li = " << c3di1li << std::endl;
+    std::cout << "c3d.incident<1>().lowerIncident() = " << c3di1li << std::endl;
     std::cout << "fn(level=5, i, 2, 3):" << std::endl;
     c3di1li.shift(fn, 5, i, 2, 3);
     std::cout << std::endl;
 
     auto c3di1i2 = c3di1.incident<2>();
-    std::cout << "c3di1i2 = " << c3di1i2 << std::endl;
+    std::cout << "c3d.incident<1>().incident<2>() = " << c3di1i2 << std::endl;
     std::cout << "fn(level=5, i, 2, 3):" << std::endl;
     c3di1i2.shift(fn, 5, i, 2, 3);
     std::cout << std::endl;
 
     auto c3di1i2li = c3di1i2.lowerIncident();
-    std::cout << "c3di1i2li = " << c3di1i2li << std::endl;
+    std::cout << "c3d.incident<1>().incident<2>().lowerIncident() = " << c3di1i2li << std::endl;
     std::cout << "fn(level=5, i, 2, 3):" << std::endl;
     c3di1i2li.shift(fn, 5, i, 2, 3);
     std::cout << std::endl;
 
     auto c3di1i2lili = c3di1i2li.lowerIncident();
-    std::cout << "c3di1i2lili = " << c3di1i2lili << std::endl;
+    std::cout << "c3d.incident<1>().incident<2>().lowerIncident().lowerIncident() = " << c3di1i2lili << std::endl;
     std::cout << "fn(level=5, i, 2, 3):" << std::endl;
     c3di1i2lili.shift(fn, 5, i, 2, 3);
     std::cout << std::endl;
@@ -118,6 +118,18 @@ int main()
     std::cout << "face3d.upperIncident() = " << face3dui << std::endl;
     std::cout << "fn(level=5, i, 2, 3):" << std::endl;
     face3dui.shift(fn, 5, i, 2, 3);
+    std::cout << std::endl;
+
+    auto c3dpn = c3d.properNeighborhood();
+    std::cout << "c3d.properNeighborhood() = " << c3dpn << std::endl;
+    std::cout << "fn(level=5, i, 2, 3):" << std::endl;
+    c3dpn.shift(fn, 5, i, 2, 3);
+    std::cout << std::endl;
+
+    auto c3dnn = c3d.neighborhood();
+    std::cout << "c3d.neighborhood() = " << c3dnn << std::endl;
+    std::cout << "fn(level=5, i, 2, 3):" << std::endl;
+    c3dnn.shift(fn, 5, i, 2, 3);
     std::cout << std::endl;
 
     return 0;

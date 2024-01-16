@@ -107,6 +107,18 @@ struct KCell
             return incident<-1>() + incident<1>();
     }
 
+    /// Neighborhood of proper (current cell not included) adjacent cells (same topology)
+    static constexpr auto properNeighborhood() noexcept
+    {
+        return prev() + next();
+    }
+
+    /// Neighborhood (current cell not included) adjacent cells (same topology), including current cell
+    static constexpr auto neighborhood() noexcept
+    {
+        return KCells(KCell{}) + prev() + next();
+    }
+
     /// Changing level while keeping the same topology
     template <std::ptrdiff_t Levels = 1>
     static constexpr
