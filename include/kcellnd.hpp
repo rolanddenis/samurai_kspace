@@ -130,7 +130,15 @@ struct KCellND : KCellTuple<T...>
     static constexpr auto dimension() noexcept
     {
         return KCellND::apply(
-            [](auto... cell) { return (cell.dimension() + ...); }
+            [] (auto... cell) { return (cell.dimension() + ...); }
+        );
+    }
+
+    /// Returns the index shift per dimension as a tuple
+    static constexpr auto indexShift() noexcept
+    {
+        return KCellND::apply(
+            [] (auto... cell) { return std::make_tuple(cell.indexShift()...); }
         );
     }
 

@@ -124,6 +124,7 @@ int main()
     std::cout << "c3d.properNeighborhood() = " << c3dpn << std::endl;
     std::cout << "fn(level=5, i, 2, 3):" << std::endl;
     c3dpn.shift(fn, 5, i, 2, 3);
+    std::cout << "c3d.properNeighborhood().indexShift() = " << c3dpn.indexShift() << std::endl;
     std::cout << std::endl;
 
     auto c3dnn = c3d.neighborhood();

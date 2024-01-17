@@ -26,6 +26,14 @@ struct KCells : KCellTuple<T...>
             return 0;
     }
 
+    /// Returns the index shift per dimension for each cell (tuple of (tuple | int))
+    static constexpr auto indexShift() noexcept
+    {
+        return KCells::apply(
+            [] (auto... cell) { return std::make_tuple(cell.indexShift()...); }
+        );
+    }
+
     template <std::ptrdiff_t Steps = 1>
     static constexpr auto next() noexcept
     {

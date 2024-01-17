@@ -66,12 +66,13 @@ int main()
                         + u(level+1, 2*i, 2*j+1)
                         + u(level+1, 2*i+1, 2*j+1));
 
-    We can write:
-
-    auto kcells = KCell{}.up();
+    We can write: 
+    auto kcells = KCellND{}.up();
     u(level, i, j) = (1. / kcells.size()) * kcells.apply(
         [] (auto... cell) { return (cell.shift(u, level, i, j) + ...); }
     );
+
+    
     */
 
 
