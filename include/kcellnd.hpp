@@ -138,7 +138,7 @@ struct KCellND : KCellTuple<T...>
     static constexpr auto indexShift() noexcept
     {
         return KCellND::apply(
-            [] (auto... cell) { return std::make_tuple(cell.indexShift()...); }
+            [] (auto... cell) { return std::integer_sequence<std::ptrdiff_t, cell.indexShift()...>{}; }
         );
     }
 

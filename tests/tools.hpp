@@ -3,9 +3,19 @@
 #include <iostream>
 #include <cstdlib>
 #include <tuple>
+#include <type_traits>
 
 template <typename... T>
 std::ostream & operator<< (std::ostream& out, std::tuple<T...> const& t);
+
+template <typename T, T... Ints>
+std::ostream & operator<< (std::ostream & out, std::integer_sequence<T, Ints...>)
+{
+    out << "{";
+    ((out << Ints << ","), ...);
+    out << "}";
+    return out;
+}
 
 template <typename... T, std::size_t... Index>
 void disp_tuple_impl(std::ostream& out, std::tuple<T...> const& t, std::index_sequence<Index...>)
