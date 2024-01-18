@@ -8,6 +8,18 @@
 #include "tools.hpp"
 
 
+template <
+    std::size_t N,
+    typename T
+>
+constexpr auto neighborhood_helper(T const& cell) noexcept
+{
+    if constexpr (N == 0)
+        return KCells(cell);
+    else
+        return neighborhood_helper<N - 1>(cell.neighborhood());
+};
+
 int main()
 {
     auto fn = [] (std::size_t level, auto... idx)
@@ -134,14 +146,31 @@ int main()
     std::cout << std::endl;
 
     std::cout << "Examples from stencil.hpp:" << std::endl;
-    std::cout << "Star shaped 1-neighborhood of c3d = " << c3d.neighborhood().indexShift() << std::endl;
+
     std::cout
-        << "Star shaped 2-neighborhood of c3d = "
+        << "Star shaped 1-neighborhood of c3d = "
         << details::dimension_concatenate(
-            [] (auto, auto cell) { return cell.properNeighborhood().neighborhood().unique(); },
+            [] (auto, auto cell) { return neighborhood_helper<1>(cell); },
             c3d
         ).unique().indexShift()
         << std::endl;
+
+    std::cout
+        << "Star shaped 2-neighborhood of c3d = "
+        << details::dimension_concatenate(
+            [] (auto, auto cell) { return neighborhood_helper<2>(cell); },
+            c3d
+        ).unique().indexShift()
+        << std::endl;
+
+    std::cout
+        << "Star shaped 3-neighborhood of c3d = "
+        << details::dimension_concatenate(
+            [] (auto, auto cell) { return neighborhood_helper<3>(cell); },
+            c3d
+        ).unique().indexShift()
+        << std::endl;
+
     std::cout << "Cartesian directions of c3d = " << c3d.properNeighborhood().indexShift() << std::endl;
     std::cout
         << "Positive Cartesian directions of c3d = "
