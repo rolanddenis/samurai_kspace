@@ -133,5 +133,23 @@ int main()
     c3dnn.shift(fn, 5, i, 2, 3);
     std::cout << std::endl;
 
+    std::cout << "Examples from stencil.hpp:" << std::endl;
+    std::cout << "Star shaped 1-neighborhood of c3d = " << c3d.neighborhood().indexShift() << std::endl;
+    std::cout
+        << "Star shaped 2-neighborhood of c3d = "
+        << details::dimension_concatenate(
+            [] (auto, auto cell) { return cell.properNeighborhood().neighborhood().unique(); },
+            c3d
+        ).unique().indexShift()
+        << std::endl;
+    std::cout << "Cartesian directions of c3d = " << c3d.properNeighborhood().indexShift() << std::endl;
+    std::cout
+        << "Positive Cartesian directions of c3d = "
+        << details::dimension_concatenate(
+            [] (auto, auto cell) { return cell.next(); },
+            c3d
+        ).indexShift()
+        << std::endl;
+
     return 0;
 }
