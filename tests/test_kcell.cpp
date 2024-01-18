@@ -17,7 +17,11 @@ int main()
     Interval i{10, 17};
 
     std::cout << "cell = " << cell << std::endl;
-    std::cout << cell.shift(i) << std::endl;
+    std::cout << "cell.dimension() = " << cell.dimension() << std::endl;
+    std::cout << "cell.topology() = " << cell.topology() << std::endl;
+    std::cout << "cell.size() = " << cell.size() << std::endl;
+    std::cout << "cell.shift(i) = " << cell.shift(i) << std::endl;
+    std::cout << "fn(level=10, i=10):" << std::endl;
     cell.shift(fn, 10, 10);
     std::cout << std::endl;
 
