@@ -123,5 +123,42 @@ int main()
     c2.shift(fn, 10, 10);
     std::cout << std::endl; 
 
+    auto cn1 = cell.neighborhood();
+    std::cout << "cell.neighborhood().indexShift() = " << cn1.indexShift() << std::endl;
+    std::cout << "fn(level=10, 10):" << std::endl;
+    cn1.shift(fn, 10, 10);
+    std::cout << std::endl;
+
+    auto cn2 = cell.neighborhood<2>();
+    std::cout << "cell.neighborhood<2>().indexShift() = " << cn2.indexShift() << std::endl;
+    std::cout << "fn(level=10, 10):" << std::endl;
+    cn2.shift(fn, 10, 10);
+    std::cout << std::endl;
+
+    auto cn3 = cell.neighborhood<3>();
+    std::cout << "cell.neighborhood<3>().indexShift() = " << cn3.indexShift() << std::endl;
+    std::cout << "fn(level=10, 10):" << std::endl;
+    cn3.shift(fn, 10, 10);
+    std::cout << std::endl;
+
+    auto cpn1 = cell.properNeighborhood();
+    std::cout << "cell.properNeighborhood().indexShift() = " << cpn1.indexShift() << std::endl;
+    std::cout << "fn(level=10, 10):" << std::endl;
+    cpn1.shift(fn, 10, 10);
+    std::cout << std::endl;
+
+    auto cpn2 = cell.properNeighborhood<2>();
+    std::cout << "cell.properNeighborhood<2>().indexShift() = " << cpn2.indexShift() << std::endl;
+    std::cout << "fn(level=10, 10):" << std::endl;
+    cpn2.shift(fn, 10, 10);
+    std::cout << std::endl;
+
+
+    auto cpn3 = cell.properNeighborhood<3>();
+    std::cout << "cell.properNeighborhood<3>().indexShift() = " << cpn3.indexShift() << std::endl;
+    std::cout << "fn(level=10, 10):" << std::endl;
+    cpn3.shift(fn, 10, 10);
+    std::cout << std::endl;
+
     return 0;
 }

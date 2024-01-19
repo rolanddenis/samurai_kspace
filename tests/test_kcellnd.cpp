@@ -8,18 +8,6 @@
 #include "tools.hpp"
 
 
-template <
-    std::size_t N,
-    typename T
->
-constexpr auto neighborhood_helper(T const& cell) noexcept
-{
-    if constexpr (N == 0)
-        return KCells(cell);
-    else
-        return neighborhood_helper<N - 1>(cell.neighborhood());
-};
-
 int main()
 {
     auto fn = [] (std::size_t level, auto... idx)
@@ -149,26 +137,26 @@ int main()
 
     std::cout
         << "Star shaped 1-neighborhood of c3d = "
-        << details::dimension_concatenate(
-            [] (auto, auto cell) { return neighborhood_helper<1>(cell); },
+        << (c3d + details::dimension_concatenate(
+            [] (auto, auto cell) { return cell.template properNeighborhood(); },
             c3d
-        ).unique().indexShift()
+        )).indexShift()
         << std::endl;
 
     std::cout
         << "Star shaped 2-neighborhood of c3d = "
-        << details::dimension_concatenate(
-            [] (auto, auto cell) { return neighborhood_helper<2>(cell); },
+        << (c3d + details::dimension_concatenate(
+            [] (auto, auto cell) { return cell.template properNeighborhood<2>(); },
             c3d
-        ).unique().indexShift()
+        )).indexShift()
         << std::endl;
 
     std::cout
         << "Star shaped 3-neighborhood of c3d = "
-        << details::dimension_concatenate(
-            [] (auto, auto cell) { return neighborhood_helper<3>(cell); },
+        << (c3d + details::dimension_concatenate(
+            [] (auto, auto cell) { return cell.template properNeighborhood<3>(); },
             c3d
-        ).unique().indexShift()
+        )).indexShift()
         << std::endl;
 
     std::cout << "Cartesian directions of c3d = " << c3d.properNeighborhood().indexShift() << std::endl;

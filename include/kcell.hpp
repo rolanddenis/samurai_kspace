@@ -107,16 +107,28 @@ struct KCell
             return incident<-1>() + incident<1>();
     }
 
-    /// Neighborhood of proper (current cell not included) adjacent cells (same topology)
+    /// Proper neighborhood of proper (current cell not included) adjacent cells (same topology)
+    template <
+        std::size_t Distance = 1
+    >
     static constexpr auto properNeighborhood() noexcept
     {
-        return prev() + next();
+        if constexpr (Distance == 0)
+            return KCells{};
+        else
+            return prev<Distance>() + properNeighborhood<Distance - 1>() + next<Distance>();
     }
 
-    /// Neighborhood (current cell not included) adjacent cells (same topology), including current cell
+    /// Neighborhood adjacent cells (same topology), including current cell
+    template <
+        std::size_t Distance = 1
+    >
     static constexpr auto neighborhood() noexcept
     {
-        return KCells(KCell{}) + prev() + next();
+        if constexpr (Distance == 0)
+            return KCells(KCell{});
+        else
+            return prev<Distance>() + neighborhood<Distance - 1>() + next<Distance>();
     }
 
     /// Changing level while keeping the same topology
