@@ -45,9 +45,9 @@ namespace details
         typename... V,
         typename = std::enable_if<sizeof...(V) == 0>
     >
-    constexpr auto subtraction (KCells<T...> const& lhs, KCells<U...> const& rhs) noexcept
+    constexpr auto subtraction(KCells<T...> const& lhs, KCells<U...> const& rhs) noexcept
     {
-        return details::subtraction_helper(lhs, rhs, KCells<U...>{});
+        return details::subtraction_helper(lhs, rhs, KCells<V...>{});
     }
 }
 

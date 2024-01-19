@@ -153,11 +153,16 @@ int main()
     cpn2.shift(fn, 10, 10);
     std::cout << std::endl;
 
-
     auto cpn3 = cell.properNeighborhood<3>();
     std::cout << "cell.properNeighborhood<3>().indexShift() = " << cpn3.indexShift() << std::endl;
     std::cout << "fn(level=10, 10):" << std::endl;
     cpn3.shift(fn, 10, 10);
+    std::cout << std::endl;
+
+    auto cn3m2 = cell.neighborhood<3>() - cell.properNeighborhood<2>();
+    std::cout << "(cell.neighborhood<3>() - cell.properNeighborhood<2>()).indexShift() = " << cn3m2.indexShift() << std::endl;
+    std::cout << "fn(level=10, 10):" << std::endl;
+    cn3m2.shift(fn, 10, 10);
     std::cout << std::endl;
 
     return 0;
