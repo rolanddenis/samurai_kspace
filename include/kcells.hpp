@@ -9,6 +9,48 @@
 
 #include "kcell_tuple.hpp"
 
+// Forward declaration
+template <typename... T>
+struct KCells;
+
+namespace details
+{
+    template <
+        typename... U,
+        typename... V
+    >
+    constexpr auto subtraction_helper(KCells<> const&, KCells<U...> const&, KCells<V...> const& result) noexcept
+    {
+        return result;
+    }
+
+    template <
+        typename THead,
+        typename... TTail,
+        typename... U,
+        typename... V
+    >
+    constexpr auto subtraction_helper(KCells<THead, TTail...> const&, KCells<U...> const& rhs, KCells<V...> const& result) noexcept
+    {
+        if constexpr (KCells<U...>::has(THead{}))
+            return subtraction_helper(KCells<TTail...>{}, rhs, result);
+        else
+            return subtraction_helper(KCells<TTail...>{}, rhs, KCells<V..., THead>{});
+    }
+
+    /// Removing from lhs the KCell from rhs
+    template <
+        typename... T,
+        typename... U,
+        typename... V,
+        typename = std::enable_if<sizeof...(V) == 0>
+    >
+    constexpr auto subtraction (KCells<T...> const& lhs, KCells<U...> const& rhs) noexcept
+    {
+        return details::subtraction_helper(lhs, rhs, KCells<U...>{});
+    }
+}
+
 /// Collection of KCell
 template <typename... T>
 struct KCells : KCellTuple<T...>
@@ -155,15 +197,45 @@ constexpr KCells<T..., U...> operator+ (KCells<T...>, KCells<U...>) noexcept
 /// Appending a new KCell
 template <
     typename... T,
-    bool Open,
-    std::ptrdiff_t IndexShift,
-    std::ptrdiff_t LevelShift
+    typename U,
+    typename = std::enable_if<details::is_kcell_v<U>>
 >
-constexpr KCells<T..., KCell<Open, IndexShift, LevelShift>> operator+ (KCells<T...>, KCell<Open, IndexShift, LevelShift>) noexcept
+constexpr KCells<T..., U> operator+ (KCells<T...>, U) noexcept
 {
     return {};
 }
 
+/// Prepending a new KCell
+template <
+    typename... T,
+    typename U,
+    typename = std::enable_if<details::is_kcell_v<U>>
+>
+constexpr KCells<U, T...> operator+ (U, KCells<T...>) noexcept
+{
+    return {};
+}
+
+/// Removing from lhs all the KCell from rhs
+template <
+    typename... T,
+    typename... U
+>
+constexpr auto operator- (KCells<T...> const& lhs, KCells<U...> const& rhs) noexcept
+{
+    return details::subtraction(lhs, rhs);
+}
+
+/// Removing from lhs a KCell
+template <
+    typename... T,
+    typename U,
+    typename = std::enable_if<details::is_kcell_v<U>>
+>
+constexpr auto operator- (KCells<T...>, U) noexcept
+{
+    return KCells<T...>{} - KCells<U>{};
+}
 
 template <typename... T>
 std::ostream& operator<< (std::ostream& out, KCells<T...> const& kcells)
