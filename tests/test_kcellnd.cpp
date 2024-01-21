@@ -136,35 +136,38 @@ int main()
     std::cout << "Examples from stencil.hpp:" << std::endl;
 
     std::cout
+        << "Star shaped 0-neighborhood of c3d = "
+        << (c3d + c3d.dimension_concatenate(
+            [] (auto, auto cell) { return cell.template properNeighborhood<0>(); }
+        )).indexShift()
+        << std::endl;
+
+    std::cout
         << "Star shaped 1-neighborhood of c3d = "
-        << (c3d + details::dimension_concatenate(
-            [] (auto, auto cell) { return cell.template properNeighborhood(); },
-            c3d
+        << (c3d + c3d.dimension_concatenate(
+            [] (auto, auto cell) { return cell.template properNeighborhood(); }
         )).indexShift()
         << std::endl;
 
     std::cout
         << "Star shaped 2-neighborhood of c3d = "
-        << (c3d + details::dimension_concatenate(
-            [] (auto, auto cell) { return cell.template properNeighborhood<2>(); },
-            c3d
+        << (c3d + c3d.dimension_concatenate(
+            [] (auto, auto cell) { return cell.template properNeighborhood<2>(); }
         )).indexShift()
         << std::endl;
 
     std::cout
         << "Star shaped 3-neighborhood of c3d = "
-        << (c3d + details::dimension_concatenate(
-            [] (auto, auto cell) { return cell.template properNeighborhood<3>(); },
-            c3d
+        << (c3d + c3d.dimension_concatenate(
+            [] (auto, auto cell) { return cell.template properNeighborhood<3>(); }
         )).indexShift()
         << std::endl;
 
     std::cout << "Cartesian directions of c3d = " << c3d.properNeighborhood().indexShift() << std::endl;
     std::cout
         << "Positive Cartesian directions of c3d = "
-        << details::dimension_concatenate(
-            [] (auto, auto cell) { return cell.next(); },
-            c3d
+        << c3d.dimension_concatenate(
+            [] (auto, auto cell) { return cell.next(); }
         ).indexShift()
         << std::endl;
 

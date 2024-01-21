@@ -68,7 +68,7 @@ namespace details
         typename... T,
         std::size_t... I
     >
-    static constexpr auto dimension_concatenate_helper(Function && fn, KCellND<T...> const& kcell, std::index_sequence<I...>) noexcept
+    static constexpr auto dimension_concatenate_helper(Function && fn, KCellND<T...> const& kcell, std::index_sequence<I...>)
     {
         return (
             details::enumerate_cartesian(
@@ -122,6 +122,25 @@ struct KCellND : KCellTuple<T...>
 
     constexpr KCellND(...) {}
 
+    /// Cartesian product of enumerate result, converting inner KCells to KCellND
+    template <
+        typename Function
+    >
+    static constexpr auto enumerate_cartesian(Function && fn)
+    {
+        return details::enumerate_cartesian(std::forward<Function>(fn), KCellND{});
+    }
+
+    /// Concatenate the result of the function applied to each dimension separately (first only, then second only, then ...)
+    template <
+        typename Function
+    >
+    static constexpr auto dimension_concatenate(Function && fn)
+    {
+        return details::dimension_concatenate(std::forward<Function>(fn), KCellND{});
+    }
+
+
     /// Topology defines the type of cell (eg in 2D: face, vertical edge, horizontal edge and vertex)
     static constexpr auto topology() noexcept
     {
@@ -174,12 +193,11 @@ struct KCellND : KCellTuple<T...>
     >
     static constexpr auto next() noexcept
     {
-        return details::enumerate_cartesian(
+        return enumerate_cartesian(
             [] (auto i, auto cell)
             {
                 return cell.template next<(decltype(i)::value == I) ? Steps : 0>();
-            },
-            KCellND{}
+            }
         );
     }
 
@@ -200,39 +218,35 @@ struct KCellND : KCellTuple<T...>
     >
     static constexpr auto incident() noexcept
     {
-        return details::enumerate_cartesian(
+        return enumerate_cartesian(
             [] (auto i, auto cell)
             {
                 return cell.template incident<(decltype(i)::value == I) ? Steps : 0>();
-            },
-            KCellND{}
+            }
         );
     }
 
     /// Neighborhood of incident cells of dimension dim-1 (eg for a face in 2D, it returns it's edges)
     static constexpr auto lowerIncident() noexcept
     {
-        return details::dimension_concatenate(
-            [] (auto, auto cell) { return cell.lowerIncident(); },
-            KCellND{}
+        return dimension_concatenate(
+            [] (auto, auto cell) { return cell.lowerIncident(); }
         );
     }
 
     /// Neighborhood of incident cells of dimension dim-1 (eg for a face in 2D, it returns it's edges)
     static constexpr auto upperIncident() noexcept
     {
-        return details::dimension_concatenate(
-            [] (auto, auto cell) { return cell.upperIncident(); },
-            KCellND{}
+        return dimension_concatenate(
+            [] (auto, auto cell) { return cell.upperIncident(); }
         );
     }
 
     /// Neighborhood of proper (current cell not included) adjacent cells (same topology)
     static constexpr auto properNeighborhood() noexcept
     {
-        return details::dimension_concatenate(
-            [] (auto, auto cell) { return cell.properNeighborhood(); },
-            KCellND{}
+        return dimension_concatenate(
+            [] (auto, auto cell) { return cell.properNeighborhood(); }
         );
     }
 
@@ -246,9 +260,8 @@ struct KCellND : KCellTuple<T...>
     template <std::ptrdiff_t Levels = 1>
     static constexpr auto up() noexcept
     {
-        return details::enumerate_cartesian(
-            [] (auto, auto cell) { return cell.template up<Levels>(); },
-            KCellND{}
+        return enumerate_cartesian(
+            [] (auto, auto cell) { return cell.template up<Levels>(); }
         );
     }
 
