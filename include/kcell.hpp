@@ -32,6 +32,23 @@ namespace details
         return bitwise_shift(std::forward<T>(i), level_shift) + index_shift;
     }
 
+    /// Alternative version with shift as template parameters (premature optimization to check if we can avoid useless operations on custom type)
+    template <
+        std::ptrdiff_t IndexShift = 0,
+        std::ptrdiff_t LevelShift = 0,
+        typename T
+    >
+    constexpr auto shift(T i) noexcept
+    {
+        if constexpr (LevelShift > 0)
+            i <<= LevelShift;
+        else if constexpr (LevelShift < 0)
+            i >>= -LevelShift;
+        if constexpr (IndexShift != 0)
+            i += IndexShift;
+        return i;
+    }
+
     /// Allows KCell to be stored in a KCells
     template <
         bool Open,
@@ -142,8 +159,8 @@ struct KCell
             return KCells<KCell>{};
         else if constexpr (Levels == 1)
             return KCells<
-                KCell<Open, details::shift(IndexShift, 0, Levels), LevelShift + Levels>,
-                KCell<Open, details::shift(IndexShift, 1, Levels), LevelShift + Levels>
+                KCell<Open, details::shift<0, Levels>(IndexShift), LevelShift + Levels>,
+                KCell<Open, details::shift<1, Levels>(IndexShift), LevelShift + Levels>
             >{};
         else
             return up().template up<Levels - 1>();
@@ -157,14 +174,14 @@ struct KCell
         if constexpr (Levels < 0)
             return up<-Levels>();
         else
-            return KCells<KCell<Open, details::shift(IndexShift, 0, -Levels), LevelShift - Levels>>{};
+            return KCells<KCell<Open, details::shift<0, -Levels>(IndexShift), LevelShift - Levels>>{};
     }
 
     /// Apply the level/index shifts of the current cell to a given index (or interval)
     template <typename T>
     static constexpr auto shift(T && i) noexcept
     {
-        return details::shift(std::forward<T>(i), IndexShift, LevelShift);
+        return details::shift<IndexShift, LevelShift>(std::forward<T>(i));
     }
 
     template <typename Function, typename Index>
