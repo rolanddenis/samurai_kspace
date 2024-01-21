@@ -168,5 +168,11 @@ int main()
         ).indexShift()
         << std::endl;
 
+    std::cout << std::endl;
+
+    std::cout << "Testing factories:" << std::endl;
+    std::cout << "make_KCellND<3>() = " << make_KCellND<3>() << std::endl;
+    std::cout << "make_KCellND<3, 5>() = " << make_KCellND<3, 5>() << std::endl;
+
     return 0;
 }

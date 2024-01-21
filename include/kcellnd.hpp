@@ -98,6 +98,16 @@ namespace details
         );
     }
 
+    /// Factories
+    template <
+        std::size_t Topology,
+        std::size_t... I
+    >
+    constexpr auto make_KCellND_helper(std::index_sequence<I...>) noexcept
+    {
+        return KCellND<KCell<(Topology & (1 << I)) != 0> ...>{};
+    }
+
     /// Allows KCellND to be stored in a KCells
     template <typename... T>
     struct is_kcell<KCellND<T...>> : std::true_type {};
@@ -292,17 +302,25 @@ KCellND(std::tuple<T...>) -> KCellND<T...>;
 template <typename... T>
 KCellND(KCells<T...>) -> KCellND<T...>;
 
-/*
-template <typename... T, typename = std::enable_if_t<(sizeof...(T) > 0)>>
-std::ostream& operator<< (std::ostream& out, KCellND<T...> const& kcell)
+/// Factories
+template <
+    std::size_t Dimension,
+    std::size_t Topology
+>
+constexpr auto make_KCellND() noexcept
 {
-    out << "KCellND{";
-    kcell.foreach([&out] (auto cell) { out << cell << ", "; });
-    out << "}";
-    return out;
+    return details::make_KCellND_helper<Topology>(std::make_index_sequence<Dimension>{});
 }
-*/
 
+template <
+    std::size_t Dimension
+>
+constexpr auto make_KCellND() noexcept
+{
+    return make_KCellND<Dimension, (1u << Dimension) - 1>();
+}
+
+/// Fancy display
 template <typename... T, typename = std::enable_if_t<(sizeof...(T) > 0)>>
 std::ostream& operator<< (std::ostream& out, KCellND<T...> const& kcell)
 {
