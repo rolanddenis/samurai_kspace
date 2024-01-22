@@ -25,7 +25,7 @@ namespace details
 {
     /// Replace void return by None type in order to be assigned
     template <typename Function, typename... Args>
-    auto valid_return(Function && fn, Args && ... args)
+    constexpr auto valid_return(Function && fn, Args && ... args)
     {
         if constexpr (std::is_void_v<std::invoke_result_t<Function, Args...>>)
         {

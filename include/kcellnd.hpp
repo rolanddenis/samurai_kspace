@@ -243,17 +243,28 @@ struct KCellND : KCellTuple<T...>
     }
 
     /// Neighborhood of proper (current cell not included) adjacent cells (same topology)
+    template <
+        std::size_t Distance = 1
+    >
     static constexpr auto properNeighborhood() noexcept
     {
-        return dimension_concatenate(
-            [] (auto, auto cell) { return cell.properNeighborhood(); }
-        );
+        if constexpr (Distance == 0)
+            return KCells();
+        else if constexpr (Distance == 1)
+            return dimension_concatenate(
+                [] (auto, auto cell) { return cell.properNeighborhood(); }
+            );
+        else
+            return properNeighborhood<Distance - 1>().neighborhood().unique() - KCellND{};
     }
 
     /// Neighborhood (current cell not included) adjacent cells (same topology), including current cell
+    template <
+        std::size_t Distance = 1
+    >
     static constexpr auto neighborhood() noexcept
     {
-        return KCells(KCellND{}) + properNeighborhood();
+        return properNeighborhood<Distance>() + KCellND{};
     }
 
     /// Changing level while keeping the same topology

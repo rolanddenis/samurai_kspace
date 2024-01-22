@@ -114,17 +114,23 @@ struct KCells : KCellTuple<T...>
         );
     }
 
+    template <
+        std::size_t Distance = 1
+    >
     static constexpr auto properNeighborhood() noexcept
     {
         return KCells::apply(
-            [] (auto... cell) { return (cell.properNeighborhood() + ... + KCells<>{}); }
+            [] (auto... cell) { return (cell.template properNeighborhood<Distance>() + ... + KCells<>{}); }
         );
     }
 
+    template <
+        std::size_t Distance = 1
+    >
     static constexpr auto neighborhood() noexcept
     {
         return KCells::apply(
-            [] (auto... cell) { return (cell.neighborhood() + ... + KCells<>{}); }
+            [] (auto... cell) { return (cell.template neighborhood<Distance>() + ... + KCells<>{}); }
         );
     }
 

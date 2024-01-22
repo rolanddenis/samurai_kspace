@@ -25,6 +25,15 @@ int main()
     cell.shift(fn, 10, 10);
     std::cout << std::endl;
 
+    std::cout << "Testing KCell in 1D..." << std::endl;
+    KCellND c1d(cell);
+    std::cout << "c1d = " << c1d << std::endl;
+    std::cout << "topology = " << c1d.topology() << std::endl;
+    std::cout << "dimension = " << c1d.dimension() << std::endl;
+    std::cout << "fn(level=5, i):" << std::endl;
+    c1d.shift(fn, 5, i);
+    std::cout << std::endl;
+
     std::cout << "Testing KCell in 2D..." << std::endl;
     KCellND c2d(cell, cell);
     std::cout << "c2d = " << c2d << std::endl;
@@ -127,6 +136,13 @@ int main()
     std::cout << "c3d.properNeighborhood().indexShift() = " << c3dpn.indexShift() << std::endl;
     std::cout << std::endl;
 
+    auto c3dpn2 = c3d.properNeighborhood<2>();
+    std::cout << "c3d.properNeighborhood<2>() = " << c3dpn2 << std::endl;
+    std::cout << "fn(level=5, i, 2, 3):" << std::endl;
+    c3dpn2.shift(fn, 5, i, 2, 3);
+    std::cout << "c3d.properNeighborhood<2>().indexShift() = " << c3dpn2.indexShift() << std::endl;
+    std::cout << std::endl;
+
     auto c3dnn = c3d.neighborhood();
     std::cout << "c3d.neighborhood() = " << c3dnn << std::endl;
     std::cout << "fn(level=5, i, 2, 3):" << std::endl;
@@ -171,6 +187,28 @@ int main()
         ).indexShift()
         << std::endl;
 
+    std::cout << std::endl;
+
+    std::cout
+        << "Corners of c1d = "
+        << (c1d.enumerate_cartesian(
+            [] (auto, auto cell) { return cell.properNeighborhood(); }
+        ) - c1d.properNeighborhood<0>()).indexShift()
+        << std::endl;
+
+    std::cout
+        << "Corners of c2d = "
+        << (c2d.enumerate_cartesian(
+            [] (auto, auto cell) { return cell.properNeighborhood(); }
+        ) - c2d.properNeighborhood<1>()).indexShift()
+        << std::endl;
+
+    std::cout
+        << "Corners of c3d = "
+        << (c3d.enumerate_cartesian(
+            [] (auto, auto cell) { return cell.properNeighborhood(); }
+        ) - c3d.properNeighborhood<2>()).indexShift()
+        << std::endl;
     std::cout << std::endl;
 
     std::cout << "Testing factories:" << std::endl;
