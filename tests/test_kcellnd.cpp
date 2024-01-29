@@ -221,6 +221,12 @@ int main()
     std::cout << "Testing factories:" << std::endl;
     std::cout << "make_KCellND<3>() = " << make_KCellND<3>() << std::endl;
     std::cout << "make_KCellND<3, 5>() = " << make_KCellND<3, 5>() << std::endl;
+    std::cout << std::endl;
+
+    std::cout << "Testing faces and neighborhood:" << std::endl;
+    auto f3d = c3d.incident<1, -1>();
+    std::cout << "f3d = c3d.incident<1, -1>() = " << f3d << std::endl;
+    std::cout << "f3d.upperIncident().indexShift() = " << f3d.upperIncident().indexShift() << std::endl;
 
     return 0;
 }

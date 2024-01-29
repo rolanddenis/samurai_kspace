@@ -235,7 +235,7 @@ struct KCellND : KCellTuple<T...>
         );
     }
 
-    /// Neighborhood of incident cells of dimension dim-1 (eg for a face in 2D, it returns it's edges)
+    /// Neighborhood of incident cells of dimension dim+1 (eg for a edge in 2D, it returns it's two neighbors faces)
     static constexpr auto upperIncident() noexcept
     {
         return dimension_concatenate(
