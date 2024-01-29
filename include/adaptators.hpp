@@ -2,6 +2,7 @@
 
 #include <array>
 #include <xtensor/xfixed.hpp>
+#include <xtensor/xadapt.hpp>
 
 namespace details
 {
