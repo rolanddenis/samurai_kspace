@@ -3,6 +3,7 @@
 #include <iostream>
 #include <cstdlib>
 #include <tuple>
+#include <array>
 #include <type_traits>
 
 template <typename... T>
@@ -29,6 +30,16 @@ std::ostream & operator<< (std::ostream& out, std::tuple<T...> const& t)
     out << "tuple(";
     disp_tuple_impl(out, t, std::make_index_sequence<sizeof...(T)>{});
     out << ")";
+    return out;
+}
+
+template <typename T, std::size_t N>
+std::ostream & operator<< (std::ostream& out, std::array<T, N> const& array)
+{
+    out << "[";
+    for (std::size_t i = 0; i < N; ++i)
+        out << array[i] << ((i < N -1) ? "," : "");
+    out << "]";
     return out;
 }
 

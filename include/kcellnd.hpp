@@ -1,6 +1,7 @@
 #pragma once
 
 #include <type_traits>
+#include <array>
 
 #include "kcell.hpp"
 #include "kcell_tuple.hpp"
@@ -167,7 +168,7 @@ struct KCellND : KCellTuple<T...>
     static constexpr auto indexShift() noexcept
     {
         return KCellND::apply(
-            [] (auto... cell) { return std::integer_sequence<std::ptrdiff_t, cell.indexShift()...>{}; }
+            [] (auto... cell) { return std::array<std::ptrdiff_t, sizeof...(T)>({cell.indexShift()...}); }
         );
     }
 

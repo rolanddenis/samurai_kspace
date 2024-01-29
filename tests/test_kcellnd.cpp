@@ -211,6 +211,13 @@ int main()
         << std::endl;
     std::cout << std::endl;
 
+    std::cout << "Checking constexpr of indexShift:" << std::endl;
+    constexpr auto index_shift = (c3d.enumerate_cartesian(
+            [] (auto, auto cell) { return cell.properNeighborhood(); }
+        ) - c3d.properNeighborhood<2>()).indexShift();
+    std::cout << "First value of corners of c3d = " << std::integral_constant<std::ptrdiff_t, index_shift[0][0]>{} << std::endl;
+    std::cout << std::endl; 
+
     std::cout << "Testing factories:" << std::endl;
     std::cout << "make_KCellND<3>() = " << make_KCellND<3>() << std::endl;
     std::cout << "make_KCellND<3, 5>() = " << make_KCellND<3, 5>() << std::endl;

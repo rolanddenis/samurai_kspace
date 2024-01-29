@@ -60,6 +60,7 @@ struct KCells : KCellTuple<T...>
 
     constexpr KCells(...) {}
 
+    // Dimension of the space
     static constexpr std::size_t kcell_size() noexcept
     {
         if constexpr (sizeof...(T) > 0)
@@ -71,8 +72,9 @@ struct KCells : KCellTuple<T...>
     /// Returns the index shift per dimension for each cell (tuple of (tuple | int))
     static constexpr auto indexShift() noexcept
     {
+        using index_type = std::array<std::array<std::ptrdiff_t, KCells::kcell_size()>, sizeof...(T)>;
         return KCells::apply(
-            [] (auto... cell) { return std::make_tuple(cell.indexShift()...); }
+            [] (auto... cell) { return index_type{{{cell.indexShift()}...}}; }
         );
     }
 
