@@ -126,26 +126,28 @@ struct KCell
 
     /// Proper neighborhood of proper (current cell not included) adjacent cells (same topology)
     template <
-        std::size_t Distance = 1
+        std::size_t Distance = 1,
+        std::ptrdiff_t Step = 1
     >
     static constexpr auto properNeighborhood() noexcept
     {
         if constexpr (Distance == 0)
             return KCells{};
         else
-            return prev<Distance>() + properNeighborhood<Distance - 1>() + next<Distance>();
+            return prev<Step * static_cast<std::ptrdiff_t>(Distance)>() + properNeighborhood<Distance - 1, Step>() + next<Step * static_cast<std::ptrdiff_t>(Distance)>();
     }
 
     /// Neighborhood adjacent cells (same topology), including current cell
     template <
-        std::size_t Distance = 1
+        std::size_t Distance = 1,
+        std::ptrdiff_t Step = 1
     >
     static constexpr auto neighborhood() noexcept
     {
         if constexpr (Distance == 0)
             return KCells(KCell{});
         else
-            return prev<Distance>() + neighborhood<Distance - 1>() + next<Distance>();
+            return prev<Step * static_cast<std::ptrdiff_t>(Distance)>() + neighborhood<Distance - 1, Step>() + next<Step * static_cast<std::ptrdiff_t>(Distance)>();
     }
 
     /// Changing level while keeping the same topology

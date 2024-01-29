@@ -165,5 +165,9 @@ int main()
     cn3m2.shift(fn, 10, 10);
     std::cout << std::endl;
 
+    std::cout << "Testing neighborhood with different step:" << std::endl;
+    std::cout << "cell.neighborhood<2, 2>().indexShift() = " << cell.neighborhood<2, 2>().indexShift() << std::endl;
+    std::cout << "cell.neighborhood<2, -1>().indexShift() = " << cell.neighborhood<2, -1>().indexShift() << std::endl;
+    std::cout << std::endl;    
     return 0;
 }

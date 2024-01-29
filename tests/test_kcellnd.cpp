@@ -227,6 +227,31 @@ int main()
     auto f3d = c3d.incident<1, -1>();
     std::cout << "f3d = c3d.incident<1, -1>() = " << f3d << std::endl;
     std::cout << "f3d.upperIncident().indexShift() = " << f3d.upperIncident().indexShift() << std::endl;
+    std::cout << std::endl;
 
+    // FIXME: implement a foreach on spanned directions (2^n for a spell)
+    std::cout << "Testing directional stencils:" << std::endl;
+    constexpr std::size_t distance = 0;
+    std::size_t id = 0;
+    auto helper = [&c3d, &id] (auto i, auto step)
+    {
+        auto cell = c3d.next<decltype(i)::value, decltype(step)::value>();
+        std::cout << "dir_stencils[" << id << "].direction = " << cell.indexShift() << std::endl;
+        auto stencil = c3d + c3d.dimension_concatenate(
+            [] (auto j, auto cell)
+            {
+                return cell.template properNeighborhood<(decltype(i)::value == decltype(j)::value) ? distance : 0, decltype(step)::value>();
+            }
+        );
+        std::cout << "dir_stencils[" << id << "].stencil = " << stencil.indexShift() << std::endl;
+        ++id;
+    };
+    c3d.enumerate(
+        [&helper] (auto i, auto)
+        {
+            helper(i, std::integral_constant<std::ptrdiff_t, -1>{});
+            helper(i, std::integral_constant<std::ptrdiff_t, 1>{});
+        }
+    );
     return 0;
 }
