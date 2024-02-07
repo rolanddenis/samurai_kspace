@@ -226,7 +226,10 @@ int main()
     std::cout << "Testing faces and neighborhood:" << std::endl;
     auto f3d = c3d.incident<1, -1>();
     std::cout << "f3d = c3d.incident<1, -1>() = " << f3d << std::endl;
-    std::cout << "f3d.upperIncident().indexShift() = " << f3d.upperIncident().indexShift() << std::endl;
+    auto f3d_ui = f3d.upperIncident();
+    std::cout << "f3d.upperIncident().indexShift() = " << f3d_ui.indexShift() << std::endl;
+    std::cout << "fn(level=5, i, 2, 3):" << std::endl;
+    f3d_ui.shift(fn, 5, i, 2, 3);
     std::cout << std::endl;
 
     // FIXME: implement a foreach on spanned directions (2^n for a spell)
@@ -253,5 +256,30 @@ int main()
             helper(i, std::integral_constant<std::ptrdiff_t, 1>{});
         }
     );
+    std::cout << std::endl;
+
+    std::cout << "Testing reference returned by shift:" << std::endl;
+    std::array<double, 5> a{1., 2., 3., 4., 5.};
+    auto afn = [&a] (auto, auto i, auto...) -> decltype(auto) { return a[i]; };
+    std::cout << "a = " << a << std::endl;
+    std::cout << "c1d.shift(a, 0, 0) = " << c1d.shift(afn, 0, 0) << std::endl;
+    c1d.shift(afn, 0, 0) = -1;
+    std::cout << "after `c1d.shift(afn, 0, 0) = -1`, a = " << a << std::endl;
+    auto && v0 = c1d.shift(afn, 0, 0);
+    v0 = -2;
+    std::cout << "a = " << a << std::endl;
+    auto && [v1, v2, v3] = c1d.neighborhood().shift(afn, 0, 2);
+    //auto && [v1, v2, v3] = c1d.next<2>().neighborhood().shift(afn, 0, 0);
+    std::cout << "v1 = " << v1 << " ; v2 = " << v2 << " ; v3 = " << v3 << std::endl;
+    v1 = 3.14;
+    v3 = -8;
+    std::cout << "v1 = " << v1 << " ; v2 = " << v2 << " ; v3 = " << v3 << std::endl;
+    //std::cout << v1.toto() << std::endl;
+    std::cout << "a = " << a << std::endl;
+    auto && v4 = c1d.neighborhood().shift(afn, 0, 2);
+    std::get<0>(v4) = 99.;
+    //v4.toto();
+    std::cout << "a = " << a << std::endl;
+
     return 0;
 }

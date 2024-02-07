@@ -168,10 +168,13 @@ struct KCells : KCellTuple<T...>
         typename... Index,
         typename = std::enable_if_t<(kcell_size() == 0 || sizeof...(Index) == kcell_size())>
     >
-    static constexpr void shift(Function && fn, std::size_t level, Index && ... i)
+    static constexpr decltype(auto) shift(Function && fn, std::size_t level, Index && ... i)
     {
         return KCells::apply(
-            [&fn, &level, &i...] (auto... cell) { (cell.shift(fn, level, i...), ...); }
+            [&fn, &level, &i...] (auto... cell) -> decltype(auto)
+            {
+                return std::forward_as_tuple(details::valid_return([&cell](auto... args) -> decltype(auto) { return cell.shift(args...); }, fn, level, i...) ...);
+            }
         );
     }
 

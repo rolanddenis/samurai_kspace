@@ -4,6 +4,8 @@
 #include <utility>
 #include <string>
 
+#include <xtensor/xfixed.hpp>
+
 constexpr bool is_open(std::size_t topology, std::size_t direction) noexcept;
 
 namespace details
@@ -23,6 +25,15 @@ namespace details
     {
         return ((is_open(topology, I) ? 1ul : 0ul) + ...);
     }
+
+    template <
+        std::size_t... I
+    >
+    auto topology_as_xtensor(std::size_t topology, std::index_sequence<I...>)
+    {
+        return xt::xtensor_fixed<int, xt::xshape<sizeof...(I)>>{(is_open(topology, I) ? 1 : 0) ...};
+    }
+
 }
 
 /// @brief Returns true if the cell of given topology (integer) is open along given direction
@@ -68,4 +79,12 @@ std::string topology_as_string(std::size_t topology)
     for (std::size_t i = 0; i < SpaceDimension; ++i)
         s += (is_open(topology, i) ? "1" : "0");
     return s;
+}
+
+template <
+    std::size_t SpaceDimension
+>
+auto topology_as_xtensor(std::size_t topology)
+{
+    return details::topology_as_xtensor(topology, std::make_index_sequence<SpaceDimension>{});
 }

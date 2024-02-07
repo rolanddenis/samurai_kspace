@@ -187,7 +187,7 @@ struct KCell
     }
 
     template <typename Function, typename Index>
-    static constexpr auto shift(Function && fn, std::size_t level, Index && i)
+    static constexpr decltype(auto) shift(Function && fn, std::size_t level, Index && i)
     {
         return std::forward<Function>(fn)(level + LevelShift, shift(std::forward<Index>(i)));
     }

@@ -25,7 +25,7 @@ namespace details
 {
     /// Replace void return by None type in order to be assigned
     template <typename Function, typename... Args>
-    constexpr auto valid_return(Function && fn, Args && ... args)
+    constexpr decltype(auto) valid_return(Function && fn, Args && ... args)
     {
         if constexpr (std::is_void_v<std::invoke_result_t<Function, Args...>>)
         {
@@ -58,7 +58,7 @@ namespace details
         typename Function,
         typename... T
     >
-    static constexpr auto foreach(Function && fn, KCellTuple<T...> const& kcells)
+    constexpr auto foreach(Function && fn, KCellTuple<T...> const& kcells)
     {
         return foreach_impl(
             std::forward<Function>(fn),
@@ -87,7 +87,7 @@ namespace details
         typename Function,
         typename... T
     >
-    static constexpr auto enumerate(Function && fn, KCellTuple<T...> const& kcells)
+    constexpr auto enumerate(Function && fn, KCellTuple<T...> const& kcells)
     {
         return enumerate_impl(
             std::forward<Function>(fn),
@@ -101,16 +101,16 @@ namespace details
         typename... T,
         std::size_t... I
     >
-    constexpr auto apply_impl(Function && fn, KCellTuple<T...> const& kcells, std::index_sequence<I...>)
+    constexpr decltype(auto) apply_impl(Function && fn, KCellTuple<T...> const& kcells, std::index_sequence<I...>)
     {
-        return fn(kcells.template get<I>() ...);
+        return std::forward<Function>(fn)(kcells.template get<I>() ...);
     }
 
     template <
         typename Function,
         typename... T
     >
-    static constexpr auto apply(Function && fn, KCellTuple<T...> const& kcells)
+    constexpr decltype(auto) apply(Function && fn, KCellTuple<T...> const& kcells)
     {
         return apply_impl(
             std::forward<Function>(fn),
@@ -204,7 +204,7 @@ struct KCellTuple
 
     /// Unfold all elements as the arguments of the given function
     template <typename Function>
-    static constexpr auto apply(Function && fn)
+    static constexpr decltype(auto) apply(Function && fn)
     {
         return details::apply(std::forward<Function>(fn), KCellTuple{});
     }

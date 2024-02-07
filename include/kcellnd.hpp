@@ -106,7 +106,7 @@ namespace details
     >
     constexpr auto make_KCellND_helper(std::index_sequence<I...>) noexcept
     {
-        return KCellND<KCell<(Topology & (1 << I)) != 0> ...>{};
+        return KCellND<KCell<(Topology & (1ul << I)) != 0> ...>{};
     }
 
     /// Allows KCellND to be stored in a KCells
@@ -303,11 +303,11 @@ struct KCellND : KCellTuple<T...>
         typename... Index,
         typename = std::enable_if_t<sizeof...(Index) == sizeof...(T)>
     >
-    static constexpr auto shift(Function && fn, std::size_t level, Index && ... index)
+    static constexpr decltype(auto) shift(Function && fn, std::size_t level, Index && ... index)
     {
         auto indices = shift(index...);
         return std::apply(
-            [&fn, level] (auto... idx)
+            [&fn, level] (auto... idx) -> decltype(auto)
             {
                 return std::forward<Function>(fn)(level + levelShift(), idx...);
             },
