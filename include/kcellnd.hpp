@@ -2,13 +2,25 @@
 
 #include <type_traits>
 #include <array>
+#include <cassert>
+#include <utility>
 
 #include "kcell.hpp"
+#include "kcells.hpp"
 #include "kcell_tuple.hpp"
 
 // Pre-declaration
 template <typename... T>
 struct KCellND;
+
+namespace samurai
+{
+    template <std::size_t dim, class TInterval, std::size_t Topology>
+    struct CellInterval;
+
+    template <std::size_t dim, class TInterval, std::size_t Topology>
+    struct Cell;
+}
 
 namespace details
 {
@@ -99,7 +111,7 @@ namespace details
         );
     }
 
-    /// Factories
+    /// Factory
     template <
         std::size_t Topology,
         std::size_t... I
@@ -184,7 +196,45 @@ struct KCellND : KCellTuple<T...>
     >
     static constexpr bool isOpen() noexcept
     {
-        return KCellND::template get<I>.isOpen();
+        return KCellND::template get<I>().isOpen();
+    }
+
+    /// Get the I-th spawn direction (the dimension's index)
+    template <
+        std::size_t I,
+        std::size_t J = 0 // Internal index
+    >
+    static constexpr std::size_t direction() noexcept
+    {
+        static_assert(J < sizeof...(T), "Out of bound spawned direction");
+        if constexpr (isOpen<J>())
+        {
+            if constexpr (I == 0)
+                return J;
+            else
+                return direction<I - 1, J + 1>();
+        }
+        else
+            return direction<I, J + 1>();
+    }
+
+    /// Get the I-th orthogonal direction (the dimension's index)
+    template <
+        std::size_t I,
+        std::size_t J = 0 // Internal index
+    >
+    static constexpr std::size_t ortho_direction() noexcept
+    {
+        static_assert(J < sizeof...(T), "Out of bound orthogonal direction");
+        if constexpr (not isOpen<J>())
+        {
+            if constexpr (I == 0)
+                return J;
+            else
+                return ortho_direction<I - 1, J + 1>();
+        }
+        else
+            return ortho_direction<I, J + 1>();
     }
 
     /// Get next cell (or the Steps-th next) of same topology in the direction I
@@ -284,10 +334,11 @@ struct KCellND : KCellTuple<T...>
         return up<-Levels>();
     }
 
-    /// Apply the level/index shifts of the current cell to a given index (or interval)
+    /// Apply the level/index shifts of the current kcell to a given index (or interval)
     template <
         typename... Index,
-        typename = std::enable_if_t<sizeof...(Index) == sizeof...(T)>
+        typename = std::enable_if_t<sizeof...(Index) == sizeof...(T)>,
+        typename = std::void_t<decltype(std::declval<Index>() + 1) ...> // Avoid conflict with the overload for Cell or CellInterval
     >
     static constexpr auto shift(Index &&... index) noexcept
     {
@@ -298,14 +349,77 @@ struct KCellND : KCellTuple<T...>
         );
     }
 
+    /// Apply the level/index shifts of the current kcell to a given indexable container (has operator[](std::size_t))
+    template <
+        typename Indices,
+        typename = std::void_t<decltype(std::declval<Indices>()[0])>
+    >
+    static constexpr auto shift(Indices indices)
+    {
+        assert(indices.size() == KCellND::size() && "Invalid indices size");
+        KCellND::enumerate(
+            [&indices] (auto i, auto cell) { indices[i] = cell.shift(indices[i]); }
+        );
+        return indices;
+    }
+
+    /** Apply the level/index shifts of the current kcell to a given Samurai Cell
+     * 
+     * @pre It is up to the user to check if the given cell has an appropriate topology
+     * @cond The returned Cell will have the same topology as the current KCell
+     * @warning The returned CellInterval may have an invalid storage index, especially something (level or coordinates) other than the first coordinate is modified!
+     *          This is up to the user to check if in the usage context, the index remains valid or not.
+     */
+    template <
+        typename TInterval,
+        std::size_t OtherTopology
+    >
+    static constexpr auto shift(samurai::Cell<KCellND::size(), TInterval, OtherTopology> const& cell) noexcept
+    {
+        return samurai::Cell<KCellND::size(), TInterval, topology()>(
+            cell.level + levelShift(),
+            shift(cell.indices),
+            KCellND::template get<0>().shift(cell.index) // Warning: no guarantee that this shifted index is still valid!
+        );
+    }
+
+    /** Apply the level/index shifts of the current kcell to a given Samurai CellInterval
+     * 
+     * @pre It is up to the user to check if the given cell interval has an appropriate topology
+     * @cond The returned CellInterval will have the same topology as the current KCell
+     * @warning The returned CellInterval may have an invalid storage index, especially something (level or coordinates) other than the first coordinate is modified!
+     *          This is up to the user to check if in the usage context, the index remains valid or not.
+     */
+    template <
+        typename TInterval,
+        std::size_t OtherTopology
+    >
+    static constexpr auto shift(samurai::CellInterval<KCellND::size(), TInterval, OtherTopology> const& ci) noexcept
+    {
+        samurai::CellInterval<KCellND::size(), TInterval, topology()> new_ci(
+            ci.level + levelShift(),
+            KCellND::template get<0>().shift(ci.interval), // Warning: no guarantee that the storage index is still valid!
+            ci.indices
+        );
+        KCellND::enumerate(
+            [&new_ci] (auto i, auto cell)
+            {
+                if (i > 0)
+                    new_ci.indices[i - 1] = cell.shift(new_ci.indices[i - 1]);
+            }
+        );
+        return new_ci;     
+    }
+
     template <
         typename Function,
         typename... Index,
-        typename = std::enable_if_t<sizeof...(Index) == sizeof...(T)>
+        typename = std::enable_if_t<sizeof...(Index) == sizeof...(T)>,
+        typename = std::enable_if_t<std::is_invocable_v<Function, std::size_t, Index...>>
     >
     static constexpr decltype(auto) shift(Function && fn, std::size_t level, Index && ... index)
     {
-        auto indices = shift(index...);
+        auto indices = shift(std::forward<Index>(index)...);
         return std::apply(
             [&fn, level] (auto... idx) -> decltype(auto)
             {
@@ -313,6 +427,26 @@ struct KCellND : KCellTuple<T...>
             },
             indices
         );
+    }
+
+    template <
+        typename Function,
+        typename TInterval,
+        std::size_t OtherTopology
+    >
+    static constexpr decltype(auto) shift(Function && fn, samurai::Cell<KCellND::size(), TInterval, OtherTopology> const& cell)
+    {
+        return std::forward<Function>(fn)(shift(cell));
+    }
+
+    template <
+        typename Function,
+        typename TInterval,
+        std::size_t OtherTopology
+    >
+    static constexpr decltype(auto) shift(Function && fn, samurai::CellInterval<KCellND::size(), TInterval, OtherTopology> const& cell_interval)
+    {
+        return std::forward<Function>(fn)(shift(cell_interval));
     }
 
 };

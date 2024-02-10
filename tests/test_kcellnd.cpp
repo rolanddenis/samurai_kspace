@@ -280,6 +280,16 @@ int main()
     std::get<0>(v4) = 99.;
     //v4.toto();
     std::cout << "a = " << a << std::endl;
+    std::cout << std::endl;
 
+    std::cout << "Testing directions:" << std::endl;
+    auto c3d5 = make_KCellND<3, 5>();
+    std::cout << "c3d5 = " << c3d5 << std::endl;
+    std::cout << "c3d5.dimension() = " << c3d5.dimension() << std::endl;
+    std::cout << "c3d5.direction<0>() = " << c3d5.direction<0>() << std::endl;
+    std::cout << "c3d5.direction<1>() = " << c3d5.direction<1>() << std::endl;
+    std::cout << "c3d5.ortho_direction<0>() = " << c3d5.ortho_direction<0>() << std::endl;
+    std::cout << std::endl;
+    
     return 0;
 }

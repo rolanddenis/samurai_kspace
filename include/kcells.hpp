@@ -13,6 +13,15 @@
 template <typename... T>
 struct KCells;
 
+namespace samurai
+{
+    template <std::size_t dim, class TInterval, std::size_t Topology>
+    struct CellInterval;
+
+    template <std::size_t dim, class TInterval, std::size_t Topology>
+    struct Cell;
+}
+
 namespace details
 {
     template <
@@ -48,6 +57,14 @@ namespace details
     constexpr auto subtraction(KCells<T...> const& lhs, KCells<U...> const& rhs) noexcept
     {
         return details::subtraction_helper(lhs, rhs, KCells<V...>{});
+    }
+
+    /// make_tuple while keeping lvalue references (eg to make assignment work)
+    /// but converting rvalue ref to value unlike std::forward_as_tuple.
+    template <typename... Args>
+    auto make_proper_tuple(Args && ... args)
+    {
+        return std::tuple<Args...>(std::forward<Args>(args)...);
     }
 }
 
@@ -152,9 +169,11 @@ struct KCells : KCellTuple<T...>
         );
     }
 
+    /// Apply the level/index shifts of the each kcell to a given index (or interval)
     template <
         typename... Index,
-        typename = std::enable_if_t<(kcell_size() == 0 || sizeof...(Index) == kcell_size())>
+        typename = std::enable_if_t<(kcell_size() == 0 || sizeof...(Index) == kcell_size())>,
+        typename = std::void_t<decltype(std::declval<Index>() + 1) ...> // Avoid conflict with the overload for Cell or CellInterval
     >
     static constexpr auto shift(Index && ... i) noexcept
     {
@@ -162,20 +181,105 @@ struct KCells : KCellTuple<T...>
             [&i...] (auto... cell) { return std::make_tuple(cell.shift(i...)...); }
         );
     }
-    
+
+    /// Apply the level/index shifts of each kcell to a given indexable container (has operator[](std::size_t))
+    template <typename Indices>
+    static constexpr auto shift(Indices && indices) -> std::void_t<decltype(indices[0])>
+    {
+        assert(indices.size() == kcell_size() && "Invalid indices size");
+        return KCells::apply(
+            [&indices] (auto... kcell) { return std::make_tuple(kcell.shift(indices)...); }
+        );
+    }
+
+    /** Apply the level/index shifts of each kcell to a given Samurai Cell
+     * 
+     * @pre It is up to the user to check if the given cell has an appropriate topology
+     * @cond The returned Cell will have the same topology as the current KCell
+     * @warning The returned CellInterval may have an invalid storage index, especially something (level or coordinates) other than the first coordinate is modified!
+     *          This is up to the user to check if in the usage context, the index remains valid or not.
+     */
+    template <
+        typename TInterval,
+        std::size_t OtherTopology
+    >
+    static constexpr auto shift(samurai::Cell<kcell_size(), TInterval, OtherTopology> const& cell) noexcept
+    {
+        return KCells::apply(
+            [&cell] (auto... kcell) { return std::make_tuple(kcell.shift(cell)...); }
+        );        
+    }
+
+    /** Apply the level/index shifts of each kcell to a given Samurai CellInterval
+     * 
+     * @pre It is up to the user to check if the given cell interval has an appropriate topology
+     * @cond The returned CellInterval will have the same topology as the current KCell
+     * @warning The returned CellInterval may have an invalid storage index, especially something (level or coordinates) other than the first coordinate is modified!
+     *          This is up to the user to check if in the usage context, the index remains valid or not.
+     */
+    template <
+        typename TInterval,
+        std::size_t OtherTopology
+    >
+    static constexpr auto shift(samurai::CellInterval<kcell_size(), TInterval, OtherTopology> const& ci) noexcept
+    {
+        return KCells::apply(
+            [&ci] (auto... kcell) { return std::make_tuple(kcell.shift(ci)...); }
+        ); 
+    }
+
     template <
         typename Function,
         typename... Index,
         typename = std::enable_if_t<(kcell_size() == 0 || sizeof...(Index) == kcell_size())>
     >
-    static constexpr decltype(auto) shift(Function && fn, std::size_t level, Index && ... i)
+    static constexpr auto shift(Function && fn, std::size_t level, Index && ... i)
     {
         return KCells::apply(
-            [&fn, &level, &i...] (auto... cell) -> decltype(auto)
+            [&fn, &level, &i...] (auto... cell)
             {
-                return std::forward_as_tuple(details::valid_return([&cell](auto... args) -> decltype(auto) { return cell.shift(args...); }, fn, level, i...) ...);
+                return details::make_proper_tuple(
+                    details::valid_return(
+                        [&]() -> decltype(auto) { return cell.shift(fn, level, i...); }
+                    ) ...);
             }
         );
+    }
+
+    template <
+        typename Function,
+        typename TInterval,
+        std::size_t OtherTopology
+    >
+    static constexpr auto shift(Function && fn, samurai::Cell<kcell_size(), TInterval, OtherTopology> const& cell)
+    {
+        return KCells::apply(
+            [&fn, &cell] (auto... kcell)
+            {
+                return details::make_proper_tuple(
+                    details::valid_return(
+                        [&]() -> decltype(auto) { return kcell.shift(fn, cell); }
+                    ) ...);
+            }
+        );        
+    }
+
+    template <
+        typename Function,
+        typename TInterval,
+        std::size_t OtherTopology
+    >
+    static constexpr auto shift(Function && fn, samurai::CellInterval<kcell_size(), TInterval, OtherTopology> const& cell_interval)
+    {
+        return KCells::apply(
+            [&fn, &cell_interval] (auto... kcell)
+            {
+                return details::make_proper_tuple(
+                    details::valid_return(
+                        [&]() -> decltype(auto) { return kcell.shift(fn, cell_interval); }
+                    ) ...);
+            }
+        );   
     }
 
     /// Remove the duplicated element type and returns the resulting KCellTuple (O(N²))
