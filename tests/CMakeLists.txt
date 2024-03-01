@@ -2,6 +2,7 @@ set(TESTS_FILES
     test_kcell
     test_kcells
     test_kcellnd
+    test_interval
 )
 
 foreach(FILE ${TESTS_FILES})
