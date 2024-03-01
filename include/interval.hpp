@@ -5,12 +5,13 @@
 
 struct Interval
 {
-    std::size_t a, b, step = 1;
+    std::ptrdiff_t a, b;
+    std::size_t step = 1;
 
     Interval& operator<<= (std::size_t s) noexcept
     {
         a <<= s;
-        b = ((b - 1) << s) + 1;
+        b = ((b - 1) << s) + 1; // FIXME: not the same as in Samurai => need to add a dedicated operation that match the level change used for KSpace
         step <<= s;
         return *this;
     }
